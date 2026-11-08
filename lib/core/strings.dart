@@ -237,6 +237,14 @@ abstract final class S {
   static const maintenanceDue = 'Bakımı gelenler';
   static const servicesDone = 'Yapılan servisler';
 
+  // Alacaklar
+  static const totalReceivable = 'Toplam alacak';
+  static String receivableCustomers(int n) => '$n müşteri';
+  static String oldestDebt(String date, String ago) => 'En eski borç: $date ($ago)';
+  static String debtServiceCount(int n) => '$n borçlu servis';
+  static const debtServices = 'Borçlu servisler';
+  static const noReceivables = 'Alacak yok. Tüm servislerin ödemesi alınmış.';
+
   // WhatsApp sablonu
   static const whatsappTemplate = 'WhatsApp mesaj şablonu';
   static const whatsappTemplateHint = 'Bakım hatırlatmasında gönderilecek mesaj';
@@ -259,7 +267,6 @@ abstract final class S {
 
   // Bos durumlar
   static const customersEmpty = 'Henüz müşteri yok, ilk servis kaydını oluştur.';
-  static const receivablesEmpty = 'Henüz alacak yok.';
 
   // Goreli gunler
   static const today = 'bugün';

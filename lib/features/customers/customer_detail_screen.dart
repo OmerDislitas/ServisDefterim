@@ -14,6 +14,7 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/service_tile.dart';
 import '../../shared/widgets/status_badges.dart';
+import '../receivables/debt_services_list.dart';
 import 'customers_providers.dart';
 
 class CustomerDetailScreen extends ConsumerWidget {
@@ -130,12 +131,13 @@ class _CustomerDetail extends ConsumerWidget {
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               color: theme.colorScheme.errorContainer,
               child: ListTile(
+                onTap: () => showDebtServicesSheet(context, customer.id),
                 leading: Icon(Icons.account_balance_wallet_outlined, color: theme.colorScheme.onErrorContainer),
-                title: Text(S.receivable, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
-                trailing: Text(
-                  formatMoney(debt),
+                title: Text(
+                  '${S.receivable}: ${formatMoney(debt)}',
                   style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onErrorContainer),
                 ),
+                trailing: Text(S.takePayment, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
               ),
             ),
 

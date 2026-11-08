@@ -27,7 +27,7 @@ void main() {
 
     await tester.tap(find.text(S.tabReceivables));
     await tester.pumpAndSettle();
-    expect(find.text(S.receivablesEmpty), findsOneWidget);
+    expect(find.text(S.noReceivables), findsOneWidget);
     // Alacaklar sekmesinde "Yeni Servis" butonu yok
     expect(find.text(S.newService), findsNothing);
   });
