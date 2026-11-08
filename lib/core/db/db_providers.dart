@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../services/app_paths.dart';
 import '../services/backup_service.dart';
 import '../services/drive_service.dart';
+import '../services/notification_service.dart';
 import 'database.dart';
 
 /// Uygulamanin tek veritabani baglantisi. Testlerde bellek ici veritabani ile override edilir.
@@ -24,11 +25,23 @@ final settingValueProvider = StreamProvider.autoDispose.family<String?, String>(
   (ref, key) => ref.watch(databaseProvider).settingsDao.watchValue(key),
 );
 
-final appPathsProvider =FutureProvider<AppPaths>((ref) => AppPaths.resolve());
+final appPathsProvider = FutureProvider<AppPaths>((ref) => AppPaths.resolve());
 
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) => PackageInfo.fromPlatform());
 
 final driveServiceProvider = Provider<DriveService>((ref) => DriveService());
+
+/// Yerel bildirim eklentisi. Testlerde sahtesiyle degistirilir.
+final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) => LocalNotificationScheduler());
+
+/// Bildirimleri veriyle esit tutan dinleyici. Ana iskelet (HomeShell) izledigi surece calisir;
+/// geri yuklemede veritabani yenilenince kendisi de yeniden olusur ve tekrar planlar.
+final notificationSyncProvider = Provider<NotificationSync>((ref) {
+  final sync = NotificationSync(ref.watch(databaseProvider), ref.watch(notificationSchedulerProvider));
+  ref.onDispose(sync.dispose);
+  sync.resync();
+  return sync;
+});
 
 final backupServiceProvider = FutureProvider<BackupService>((ref) async {
   final info = await ref.watch(packageInfoProvider.future);

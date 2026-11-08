@@ -7,6 +7,8 @@ import 'package:servis_defterim/app.dart';
 import 'package:servis_defterim/core/db/database.dart';
 import 'package:servis_defterim/core/db/db_providers.dart';
 import 'package:servis_defterim/core/router/app_router.dart';
+import 'package:servis_defterim/core/services/notification_service.dart';
+import 'package:servis_defterim/core/utils/notification_plan.dart';
 
 import 'db/test_db.dart';
 
@@ -35,8 +37,45 @@ Future<void> pushRoute(WidgetTester tester, String location) async {
   await tester.pumpAndSettle();
 }
 
+/// Eklentisiz bildirim planlayici: planlanan son listeyi ve izin isteklerini kaydeder.
+class FakeNotificationScheduler implements NotificationScheduler {
+  List<PlannedNotification> scheduled = const [];
+  int replaceCount = 0;
+  int permissionRequests = 0;
+  int testShown = 0;
+  bool granted = true;
+
+  @override
+  Stream<String> get taps => const Stream.empty();
+
+  @override
+  Future<String?> launchPayload() async => null;
+
+  @override
+  Future<bool> permissionGranted() async => granted;
+
+  @override
+  Future<bool> requestPermission() async {
+    permissionRequests++;
+    return granted;
+  }
+
+  @override
+  Future<void> replaceAll(List<PlannedNotification> list) async {
+    scheduled = list;
+    replaceCount++;
+  }
+
+  @override
+  Future<void> showTest() async => testShown++;
+}
+
 /// Uygulamayi bellek ici veritabaniyla baslatir. [seed] ile once veri eklenebilir.
-Future<AppDatabase> pumpApp(WidgetTester tester, {Future<void> Function(AppDatabase db)? seed}) async {
+Future<AppDatabase> pumpApp(
+  WidgetTester tester, {
+  Future<void> Function(AppDatabase db)? seed,
+  FakeNotificationScheduler? notifications,
+}) async {
   await initializeDateFormatting('tr_TR');
   final db = createTestDb();
   addTearDown(db.close);
@@ -46,6 +85,7 @@ Future<AppDatabase> pumpApp(WidgetTester tester, {Future<void> Function(AppDatab
     retry: (_, _) => null,
     overrides: [
       databaseProvider.overrideWithValue(db),
+      notificationSchedulerProvider.overrideWithValue(notifications ?? FakeNotificationScheduler()),
       packageInfoProvider.overrideWithValue(
         AsyncData(PackageInfo(appName: 'Servis Defterim', packageName: 'test', version: '1.0.0', buildNumber: '1')),
       ),

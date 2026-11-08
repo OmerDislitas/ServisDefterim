@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +12,7 @@ import '../../features/settings/backup_actions.dart';
 
 /// Alt menulu ana iskelet. Sekmeler [StatefulNavigationShell] ile canli tutulur.
 /// Acilista yarim kalan servis taslagi varsa devam edilip edilmeyecegini sorar (PLAN 7.6).
+/// Bildirimleri planli tutar ve bildirime dokununca ilgili ekrani acar (PLAN 9).
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key, required this.navigationShell});
 
@@ -21,21 +24,47 @@ class HomeShell extends ConsumerStatefulWidget {
 
 class _HomeShellState extends ConsumerState<HomeShell> {
   late final AppLifecycleListener _lifecycle;
+  StreamSubscription<String>? _taps;
 
   @override
   void initState() {
     super.initState();
+    final scheduler = ref.read(notificationSchedulerProvider);
+    _taps = scheduler.taps.listen(_openRoute);
     // Ilk kare cizildikten sonra (acilisi yavaslatmamak icin, PLAN 11)
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _checkDraft();
+      String? launched;
+      try {
+        launched = await scheduler.launchPayload();
+      } catch (_) {
+        launched = null;
+      }
+      if (!mounted) return;
+      // Bildirimle acildiysa dogrudan ilgili ekran; taslak sorusu sonraki acilisa kalir
+      if (launched != null) {
+        _openRoute(launched);
+      } else {
+        await _checkDraft();
+      }
       if (mounted) runAutoBackupIfNeeded(ref);
     });
-    // On plana gelince firsatci Drive yedegi (PLAN 8.4)
-    _lifecycle = AppLifecycleListener(onResume: () => runAutoBackupIfNeeded(ref));
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        // On plana gelince firsatci Drive yedegi (PLAN 8.4) ve gun degismis olabilir: bildirimleri tazele
+        runAutoBackupIfNeeded(ref);
+        ref.read(notificationSyncProvider).resync();
+      },
+    );
+  }
+
+  void _openRoute(String location) {
+    if (!mounted) return;
+    GoRouter.of(context).push(location);
   }
 
   @override
   void dispose() {
+    _taps?.cancel();
     _lifecycle.dispose();
     super.dispose();
   }
@@ -65,6 +94,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    // Izlendigi surece veri degistikce bildirimler yeniden planlanir
+    ref.watch(notificationSyncProvider);
     final shell = widget.navigationShell;
     return Scaffold(
       body: shell,

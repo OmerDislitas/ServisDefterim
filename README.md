@@ -46,6 +46,13 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
   - "Şimdi yedekle" ve otomatik yedek seçenekleri var. Otomatik yedek günde en fazla bir kez ve sadece veri değiştiyse alınır.
   - Drive'dan geri yükleme yapılabilir. Drive'da en yeni 15 yedek tutulur.
 
+### Bildirimler
+- Bakımı yaklaşan kombiler için hatırlatma: bakım tarihinden seçilen gün kadar önce, seçilen saatte. Aynı güne düşen kombiler tek bildirimde toplanır.
+- Randevudan 1 saat önce hatırlatma
+- Bildirime dokununca ilgili ekran açılır (kombi, bakımı gelenler ya da randevu).
+- Ayarlardan tamamen ya da tür bazında kapatılabilir; deneme bildirimi gönderilebilir.
+- Sunucu ya da arka plan işi gerekmez: zamanlanmış yerel bildirimler kullanılır. Bildirimler telefon yeniden başlasa da korunur.
+
 ### Diğer
 - Karanlık / aydınlık mod
 - Silinen kayıtlar için "Geri al" (soft delete, bağlı kayıtlarla birlikte)
@@ -54,7 +61,7 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
 - [x] M0–M5: Veri katmanı, müşteri/cihaz, servis, randevu/takvim, alacaklar
 - [x] M6: Dışa / içe aktarma, imzalı release APK
 - [x] M7: Google Drive yedeği
-- [ ] M8: Bakım hatırlatma bildirimleri
+- [x] M8: Bakım ve randevu bildirimleri
 - [ ] M9: Servis fotoğrafları
 - [ ] M10: Cilalama ve performans
 
@@ -71,6 +78,7 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
 | Takvim | table_calendar |
 | Yedekleme | archive (zip), share_plus, file_picker |
 | Google Drive | google_sign_in v7, googleapis (Drive v3) |
+| Bildirimler | flutter_local_notifications, timezone |
 | Diğer | intl (tr_TR), url_launcher, connectivity_plus, uuid |
 
 Firebase kullanılmaz; uygulama sunucusuz ve tamamen çevrimdışı çalışır.
@@ -84,7 +92,7 @@ lib/
   core/
     db/            Drift veritabanı, tablolar, DAO'lar, sağlayıcılar
     router/        go_router rotaları
-    services/      Yedekleme ve Google Drive servisleri
+    services/      Yedekleme, Google Drive ve bildirim servisleri
     theme/         Material 3 tema (aydınlık / karanlık)
     utils/         Tarih, para, telefon, Türkçe arama, bakım hesapları
     strings.dart   Tüm arayüz metinleri

@@ -91,9 +91,56 @@ void main() {
     expect(find.text(S.linkedin), findsOneWidget);
   });
 
+  testAppWidgets('Ayarlar: bildirimler kapatılabilir; kapalıyken hiçbir bildirim planlanmaz', (tester) async {
+    final fake = FakeNotificationScheduler();
+    final t = today();
+    final db = await pumpApp(
+      tester,
+      notifications: fake,
+      seed: (db) => createCustomerWithDevice(db, nextMaintenanceDate: addDays(t, 10)),
+    );
+    expect(fake.scheduled, hasLength(1));
+
+    // Dokun, ayar yazilsin, bildirim senkronizasyonunun bekleme suresi (2 sn) gecsin
+    Future<void> tapAndResync(Finder f) async {
+      await tester.ensureVisible(f);
+      await tester.pumpAndSettle();
+      await tester.tap(f);
+      await tester.pump(const Duration(seconds: 3));
+    }
+
+    await pushRoute(tester, Routes.settings);
+    final master = find.widgetWithText(SwitchListTile, S.notificationsEnabled);
+    await tester.scrollUntilVisible(master, 300, scrollable: find.byType(Scrollable).first);
+    expect(find.text(S.maintenanceNotifications), findsOneWidget);
+
+    await tapAndResync(master);
+    await tester.pumpAndSettle();
+    expect(await db.settingsDao.getBool(SettingKeys.notificationsEnabled), isFalse);
+    expect(fake.scheduled, isEmpty);
+    expect(find.text(S.maintenanceNotifications), findsNothing);
+
+    await tapAndResync(master);
+    await tester.pumpAndSettle();
+    expect(fake.scheduled, hasLength(1));
+
+    // Sadece bakim hatirlatmalarini kapat
+    await tapAndResync(find.widgetWithText(SwitchListTile, S.maintenanceNotifications));
+    await tester.pumpAndSettle();
+    expect(fake.scheduled, isEmpty);
+
+    await tester.scrollUntilVisible(find.text(S.sendTestNotification), 200, scrollable: find.byType(Scrollable).first);
+    await tester.ensureVisible(find.text(S.sendTestNotification));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(S.sendTestNotification));
+    await tester.pumpAndSettle();
+    expect(fake.testShown, 1);
+  });
+
   testAppWidgets('Randevu oluşturulur, randevudan servis başlatılır ve randevu kapanır', (tester) async {
     late ({String customerId, String addressId, String deviceId}) ids;
-    final db = await pumpApp(tester, seed: (db) async => ids = await createCustomerWithDevice(db));
+    final fake = FakeNotificationScheduler()..granted = false;
+    final db = await pumpApp(tester, notifications: fake, seed: (db) async => ids = await createCustomerWithDevice(db));
 
     await pushRoute(tester, Routes.appointmentNew(customerId: ids.customerId));
     expect(find.text('Ahmet Yılmaz'), findsOneWidget);
@@ -104,6 +151,10 @@ void main() {
 
     final appts = await firstOf(tester, db.appointmentsDao.watchAppointments());
     expect(appts.single.deviceId, ids.deviceId);
+    // Ilk randevuda bildirim izni bir kez istenir
+    await tester.pumpAndSettle();
+    expect(fake.permissionRequests, 1);
+    expect(await db.settingsDao.getBool(SettingKeys.notificationPermissionAsked), isTrue);
     expect(appts.single.status, AppointmentStatus.planned);
 
     // Bugun ekraninda randevu gorunur

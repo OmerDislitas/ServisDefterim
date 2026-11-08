@@ -26,6 +26,7 @@ import '../devices/devices_providers.dart';
 import 'service_draft.dart';
 import 'service_selection.dart';
 import 'services_providers.dart';
+import '../settings/notification_actions.dart';
 
 /// Yeni servis kaydi / servis duzenleme (PLAN 7.6). En kritik ekran: sahada, hizli,
 /// hataya dayanikli. Yeni kayitta form durumu otomatik taslak olarak saklanir.
@@ -556,6 +557,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
 
     if (!_isEdit) await _clearDraft();
     if (!mounted) return;
+    if (!_isEdit && periodic && _nextMaintenance != null) askNotificationPermissionOnce(ref);
 
     // Duzenlemede tarih degistiyse sonraki bakim tarihini sor (PLAN 6.1)
     if (_isEdit && periodic && _originalDate != null && !isSameDay(_originalDate!, _date)) {

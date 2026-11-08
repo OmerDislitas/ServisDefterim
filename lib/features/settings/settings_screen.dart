@@ -13,6 +13,7 @@ import '../../core/utils/dates.dart';
 import '../../shared/actions.dart';
 import '../../shared/widgets/section_header.dart';
 import 'backup_actions.dart';
+import 'notification_actions.dart';
 
 final _defaultIntervalProvider = StreamProvider.autoDispose<int>(
   (ref) => ref
@@ -107,6 +108,7 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(Routes.checklistSettings),
           ),
+          const _NotificationsSection(),
           const SectionHeader(title: S.settingsMessages),
           ListTile(
             leading: const Icon(Icons.chat_outlined),
@@ -126,10 +128,6 @@ class SettingsScreen extends ConsumerWidget {
                 ref.read(databaseProvider).settingsDao.setValue(SettingKeys.themeMode, v ? 'dark' : 'light'),
           ),
           const Divider(),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text(S.otherSettingsLater),
-          ),
           const _About(),
           if (kDebugMode) const _DebugTools(),
         ],
@@ -202,6 +200,135 @@ class _DriveSection extends ConsumerWidget {
           subtitle: const Text(S.driveRestoreHint),
           onTap: () => restoreFromDrive(context, ref),
         ),
+      ],
+    );
+  }
+}
+
+final _notificationPermissionProvider = FutureProvider.autoDispose<bool>(
+  (ref) => ref.watch(notificationSchedulerProvider).permissionGranted(),
+);
+
+/// Bildirimler (PLAN 7.10, 9): ana anahtar, bakim / randevu anahtarlari, saat, kac gun once,
+/// izin durumu ve deneme bildirimi.
+class _NotificationsSection extends ConsumerWidget {
+  const _NotificationsSection();
+
+  static const _dayChoices = [0, 1, 2, 3, 5, 7, 14];
+
+  Future<void> _pickHour(BuildContext context, WidgetRef ref, int hour) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: hour, minute: 0),
+      helpText: S.notificationHour,
+    );
+    if (picked != null) {
+      await ref.read(databaseProvider).settingsDao.setInt(SettingKeys.notificationHour, picked.hour);
+    }
+  }
+
+  Future<void> _pickDays(BuildContext context, WidgetRef ref, int days) async {
+    final picked = await showDialog<int>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text(S.remindDaysBefore),
+        children: [
+          RadioGroup<int>(
+            groupValue: days,
+            onChanged: (v) => Navigator.pop(context, v),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final d in _dayChoices) RadioListTile<int>(value: d, title: Text(S.daysBeforeValue(d))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (picked != null) {
+      await ref.read(databaseProvider).settingsDao.setInt(SettingKeys.remindDaysBefore, picked);
+    }
+  }
+
+  Future<void> _request(BuildContext context, WidgetRef ref) async {
+    await requestNotificationPermission(context, ref);
+    ref.invalidate(_notificationPermissionProvider);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    bool flag(String key) => ref.watch(settingValueProvider(key)).value == 'true';
+    final enabled = flag(SettingKeys.notificationsEnabled);
+    final maintenance = flag(SettingKeys.maintenanceNotifications);
+    final appointment = flag(SettingKeys.appointmentNotifications);
+    final hour = int.tryParse(ref.watch(settingValueProvider(SettingKeys.notificationHour)).value ?? '') ?? 9;
+    final days = int.tryParse(ref.watch(settingValueProvider(SettingKeys.remindDaysBefore)).value ?? '') ?? 3;
+    final granted = ref.watch(_notificationPermissionProvider).value ?? true;
+    final settings = ref.read(databaseProvider).settingsDao;
+    final hourText = '${hour.toString().padLeft(2, '0')}:00';
+    final error = Theme.of(context).colorScheme.error;
+
+    return Column(
+      children: [
+        const SectionHeader(title: S.settingsNotifications),
+        SwitchListTile(
+          secondary: Icon(enabled ? Icons.notifications_active_outlined : Icons.notifications_off_outlined),
+          title: const Text(S.notificationsEnabled),
+          subtitle: const Text(S.notificationsEnabledHint),
+          value: enabled,
+          onChanged: (v) async {
+            await settings.setBool(SettingKeys.notificationsEnabled, v);
+            if (v && context.mounted) await _request(context, ref);
+          },
+        ),
+        if (enabled) ...[
+          if (!granted)
+            ListTile(
+              leading: Icon(Icons.warning_amber_outlined, color: error),
+              title: Text(S.notificationPermissionOff, style: TextStyle(color: error)),
+              subtitle: const Text(S.notificationPermissionOffHint),
+              onTap: () => _request(context, ref),
+            ),
+          SwitchListTile(
+            secondary: const Icon(Icons.build_outlined),
+            title: const Text(S.maintenanceNotifications),
+            subtitle: Text(S.maintenanceNotificationsHint(days, hourText)),
+            value: maintenance,
+            onChanged: (v) => settings.setBool(SettingKeys.maintenanceNotifications, v),
+          ),
+          if (maintenance) ...[
+            ListTile(
+              contentPadding: const EdgeInsets.only(left: 72, right: 16),
+              title: const Text(S.notificationHour),
+              subtitle: Text(hourText),
+              onTap: () => _pickHour(context, ref, hour),
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.only(left: 72, right: 16),
+              title: const Text(S.remindDaysBefore),
+              subtitle: Text(S.daysBeforeValue(days)),
+              onTap: () => _pickDays(context, ref, days),
+            ),
+          ],
+          SwitchListTile(
+            secondary: const Icon(Icons.event_outlined),
+            title: const Text(S.appointmentNotifications),
+            subtitle: const Text(S.appointmentNotificationsHint),
+            value: appointment,
+            onChanged: (v) => settings.setBool(SettingKeys.appointmentNotifications, v),
+          ),
+          ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: const Text(S.sendTestNotification),
+            onTap: () async {
+              final scheduler = ref.read(notificationSchedulerProvider);
+              if (!await requestNotificationPermission(context, ref)) return;
+              ref.invalidate(_notificationPermissionProvider);
+              await scheduler.showTest();
+            },
+          ),
+        ],
       ],
     );
   }

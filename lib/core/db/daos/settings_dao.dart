@@ -28,8 +28,24 @@ abstract final class SettingKeys {
   /// Tema: 'dark' / 'light'; kayit yoksa telefonun temasi kullanilir.
   static const themeMode = 'themeMode';
 
+  /// Bildirimler (PLAN 9): ana anahtar ve tur bazinda anahtarlar.
+  static const notificationsEnabled = 'notificationsEnabled';
+  static const maintenanceNotifications = 'maintenanceNotifications';
+  static const appointmentNotifications = 'appointmentNotifications';
+
+  /// Bildirim izni bir kez otomatik soruldu mu (sonra sadece ayarlardan istenir).
+  static const notificationPermissionAsked = 'notificationPermissionAsked';
+
   /// Bu telefona ozel ayarlar: geri yuklemede yedektekiyle degistirilmez.
-  static const deviceLocal = [driveAutoBackup, driveAccountEmail, lastDriveBackupAt, driveLastError, themeMode];
+  static const deviceLocal = [
+    driveAutoBackup,
+    driveAccountEmail,
+    lastDriveBackupAt,
+    driveLastError,
+    themeMode,
+    notificationsEnabled,
+    notificationPermissionAsked,
+  ];
 
   /// Veritabani ilk olusturulurken yazilan degerler.
   static const defaults = {
@@ -38,6 +54,9 @@ abstract final class SettingKeys {
     remindDaysBefore: '3',
     whatsappTemplate: S.defaultWhatsappTemplate,
     driveAutoBackup: 'false',
+    notificationsEnabled: 'true',
+    maintenanceNotifications: 'true',
+    appointmentNotifications: 'true',
   };
 }
 

@@ -98,6 +98,18 @@ class AppointmentsDao extends DatabaseAccessor<AppDatabase> with _$AppointmentsD
     DateTime? to,
     String? customerId,
     AppointmentStatus? status,
+  }) =>
+      _appointmentsQuery(from: from, to: to, customerId: customerId, status: status).watch();
+
+  /// [watchAppointments]'in tek seferlik okumasi (bildirim planlama).
+  Future<List<AppointmentListItem>> getAppointments({DateTime? from, DateTime? to, AppointmentStatus? status}) =>
+      _appointmentsQuery(from: from, to: to, status: status).get();
+
+  Selectable<AppointmentListItem> _appointmentsQuery({
+    DateTime? from,
+    DateTime? to,
+    String? customerId,
+    AppointmentStatus? status,
   }) {
     final where = <String>['ap.deleted_at IS NULL', 'c.deleted_at IS NULL'];
     final vars = <Variable>[];
@@ -137,9 +149,7 @@ ORDER BY ap.scheduled_at
 ''',
       variables: vars,
       readsFrom: {appointments, customers, devices, addresses},
-    ).watch().map((rows) => [
-          for (final r in rows)
-            AppointmentListItem(
+    ).map((r) => AppointmentListItem(
               id: r.read<String>('id'),
               scheduledAt: r.read<DateTime>('scheduled_at'),
               type: ServiceType.values.byName(r.read<String>('type')),
@@ -153,7 +163,6 @@ ORDER BY ap.scheduled_at
               deviceModel: r.readNullable<String>('device_model'),
               district: r.readNullable<String>('district'),
               neighborhood: r.readNullable<String>('neighborhood'),
-            ),
-        ]);
+            ));
   }
 }

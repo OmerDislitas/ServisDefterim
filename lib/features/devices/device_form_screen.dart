@@ -13,6 +13,7 @@ import '../../shared/widgets/date_field.dart';
 import '../../shared/widgets/form_scaffold.dart';
 import '../../shared/widgets/suggestion_field.dart';
 import 'devices_providers.dart';
+import '../settings/notification_actions.dart';
 
 /// Yeni kombi ([addressId]) ya da kombi duzenleme ([deviceId]).
 class DeviceFormScreen extends ConsumerStatefulWidget {
@@ -122,7 +123,9 @@ class _DeviceFormScreenState extends ConsumerState<DeviceFormScreen> {
         note: _note.text,
       );
     }
-    if (mounted) context.pop();
+    if (!mounted) return;
+    if (_nextMaintenance != null) askNotificationPermissionOnce(ref);
+    context.pop();
   }
 
   @override

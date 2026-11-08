@@ -328,7 +328,41 @@ abstract final class S {
   static const editChecklistItem = 'Maddeyi düzenle';
   static const checklistItemLabel = 'Madde';
   static const checklistInactiveHint = 'Kapalı maddeler servis formunda görünmez';
-  static const otherSettingsLater = 'Bildirim ayarları sonraki aşamada eklenecek.';
+  // Bildirimler (M8)
+  static const settingsNotifications = 'Bildirimler';
+  static const notificationsEnabled = 'Bildirimler';
+  static const notificationsEnabledHint = 'Kapalıyken hiçbir hatırlatma gönderilmez';
+  static const maintenanceNotifications = 'Bakım hatırlatmaları';
+  static const appointmentNotifications = 'Randevu hatırlatmaları';
+  static const appointmentNotificationsHint = 'Randevudan 1 saat önce';
+  static const notificationHour = 'Bildirim saati';
+  static const remindDaysBefore = 'Kaç gün önce hatırlatılsın';
+  static String daysBeforeValue(int n) => n == 0 ? 'Bakım günü' : '$n gün önce';
+  static String maintenanceNotificationsHint(int days, String hour) =>
+      'Bakım tarihinden ${daysBeforeValue(days).toLowerCase()}, saat $hour';
+  static const notificationPermissionOff = 'Bildirim izni kapalı';
+  static const notificationPermissionOffHint = 'İzin vermek için dokunun';
+  static const notificationPermissionDenied =
+      'Bildirim izni verilmedi. Telefonun Ayarlar > Uygulamalar > Servis Defterim bölümünden açabilirsiniz.';
+  static const sendTestNotification = 'Deneme bildirimi gönder';
+  static const testNotificationTitle = 'Servis Defterim';
+  static const testNotificationBody = 'Bildirimler çalışıyor.';
+  static const channelMaintenance = 'Bakım hatırlatmaları';
+  static const channelMaintenanceDesc = 'Bakımı yaklaşan kombiler';
+  static const channelAppointments = 'Randevu hatırlatmaları';
+  static const channelAppointmentsDesc = 'Randevudan 1 saat önce';
+  static const maintenanceReminderTitle = 'Bakım hatırlatması';
+  static String maintenanceWhen(int daysBefore, String date) => switch (daysBefore) {
+        0 => 'bugün',
+        1 => 'yarın ($date)',
+        _ => '$daysBefore gün sonra ($date)',
+      };
+  static String maintenanceSingle(String customer, String brand, String when) =>
+      '$customer – $brand: bakım $when.';
+  static String maintenanceGroupTitle(int count) => '$count kombinin bakımı yaklaşıyor';
+  static String maintenanceGroup(String when, int count, String names) =>
+      '${when[0].toUpperCase()}${when.substring(1)} $count kombinin bakımı var: $names';
+  static String appointmentReminderTitle(String time) => 'Randevu: $time';
   static const settingsMessages = 'Mesajlar';
 
   // Bos durumlar

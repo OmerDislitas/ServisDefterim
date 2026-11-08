@@ -122,7 +122,14 @@ class DevicesDao extends DatabaseAccessor<AppDatabase> with _$DevicesDaoMixin {
   }
 
   /// Sonraki bakim tarihi [from, to] araligindaki kombiler ('yyyy-MM-dd', iki uc dahil).
-  Stream<List<DueDeviceItem>> watchDueDevicesInRange({String? from, String? to, bool unknownOnly = false}) {
+  Stream<List<DueDeviceItem>> watchDueDevicesInRange({String? from, String? to, bool unknownOnly = false}) =>
+      _dueQuery(from: from, to: to, unknownOnly: unknownOnly).watch();
+
+  /// [watchDueDevicesInRange]'in tek seferlik okumasi (bildirim planlama).
+  Future<List<DueDeviceItem>> getDueDevicesInRange({String? from, String? to}) =>
+      _dueQuery(from: from, to: to).get();
+
+  Selectable<DueDeviceItem> _dueQuery({String? from, String? to, bool unknownOnly = false}) {
     final range = (from: from, to: to);
     final q = select(devices).join([
       innerJoin(addresses, addresses.id.equalsExp(devices.addressId)),
@@ -140,14 +147,11 @@ class DevicesDao extends DatabaseAccessor<AppDatabase> with _$DevicesDaoMixin {
       q.orderBy([OrderingTerm.asc(devices.nextMaintenanceDate), OrderingTerm.asc(customers.searchText)]);
     }
 
-    return q.watch().map((rows) => [
-          for (final r in rows)
-            DueDeviceItem(
-              device: r.readTable(devices),
-              address: r.readTable(addresses),
-              customer: r.readTable(customers),
-            ),
-        ]);
+    return q.map((r) => DueDeviceItem(
+          device: r.readTable(devices),
+          address: r.readTable(addresses),
+          customer: r.readTable(customers),
+        ));
   }
 
   /// Marka onerileri: seed listesi + daha once girilen markalar.

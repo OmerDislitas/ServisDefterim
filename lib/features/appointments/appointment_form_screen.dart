@@ -13,6 +13,7 @@ import '../../shared/widgets/section_header.dart';
 import '../customers/customer_form_screen.dart' show validatePhone;
 import '../services/service_selection.dart';
 import 'appointments_providers.dart';
+import '../settings/notification_actions.dart';
 
 /// Randevu formu (PLAN 7.8): musteri (ve istege bagli kombi), tarih-saat, tur, not.
 class AppointmentFormScreen extends ConsumerStatefulWidget {
@@ -119,6 +120,7 @@ class _AppointmentFormScreenState extends ConsumerState<AppointmentFormScreen> {
       }
     });
     if (!mounted) return;
+    askNotificationPermissionOnce(ref);
     final messenger = ScaffoldMessenger.of(context);
     context.pop();
     messenger.showSnackBar(const SnackBar(content: Text(S.saved)));
