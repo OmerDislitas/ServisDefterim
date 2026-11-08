@@ -91,7 +91,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                   listenable: _search,
                   builder: (context, _) => _search.text.isEmpty
                       ? const SizedBox.shrink()
-                      : IconButton(icon: const Icon(Icons.clear), onPressed: _clearSearch),
+                      : IconButton(tooltip: S.clearSearch, icon: const Icon(Icons.clear), onPressed: _clearSearch),
                 ),
               ),
             ),

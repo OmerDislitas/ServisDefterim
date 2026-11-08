@@ -16,7 +16,6 @@ import '../../shared/widgets/due_device_tile.dart';
 import '../../shared/widgets/new_service_fab.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/service_tile.dart';
-import '../due_maintenance/due_maintenance_screen.dart';
 import '../settings/backup_actions.dart';
 
 final _todayAppointmentsProvider = StreamProvider.autoDispose<List<AppointmentListItem>>((ref) {
@@ -26,6 +25,16 @@ final _todayAppointmentsProvider = StreamProvider.autoDispose<List<AppointmentLi
 
 final _recentServicesProvider = StreamProvider.autoDispose<List<ServiceListItem>>(
   (ref) => ref.watch(databaseProvider).servicesDao.watchServiceList(limit: 5),
+);
+
+/// Bugun ekrani bakim listelerinin sadece ilk satirlarini ve sayisini okur;
+/// tam liste "Tumunu gor" ile acilan ekranda (PLAN 11: acilista sadece gereken sorgular).
+final _duePreviewProvider = StreamProvider.autoDispose.family<List<DueDeviceItem>, DueFilter>(
+  (ref, filter) => ref.watch(databaseProvider).devicesDao.watchDueDevices(filter, limit: TodayScreen._maxRows),
+);
+
+final _dueCountProvider = StreamProvider.autoDispose.family<int, DueFilter>(
+  (ref, filter) => ref.watch(databaseProvider).devicesDao.watchDueCount(filter),
 );
 
 final _lastBackupProvider = StreamProvider.autoDispose<DateTime?>(
@@ -46,8 +55,10 @@ class TodayScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appointments = ref.watch(_todayAppointmentsProvider).value;
-    final overdue = ref.watch(dueDevicesProvider(DueFilter.overdue)).value;
-    final thisWeek = ref.watch(dueDevicesProvider(DueFilter.thisWeek)).value;
+    final overdue = ref.watch(_duePreviewProvider(DueFilter.overdue)).value;
+    final overdueCount = ref.watch(_dueCountProvider(DueFilter.overdue)).value ?? overdue?.length ?? 0;
+    final thisWeek = ref.watch(_duePreviewProvider(DueFilter.thisWeek)).value;
+    final thisWeekCount = ref.watch(_dueCountProvider(DueFilter.thisWeek)).value ?? thisWeek?.length ?? 0;
     final recent = ref.watch(_recentServicesProvider).value;
 
     return Scaffold(
@@ -76,18 +87,18 @@ class TodayScreen extends ConsumerWidget {
           if (overdue != null && overdue.isNotEmpty) ...[
             SectionHeader(
               title: S.overdueMaintenance,
-              action: _CountBadge(count: overdue.length),
+              action: _CountBadge(count: overdueCount),
             ),
             ..._dueRows(overdue),
-            _SeeAll(onTap: () => context.push(Routes.dueMaintenance(DueFilter.overdue)), total: overdue.length),
+            _SeeAll(onTap: () => context.push(Routes.dueMaintenance(DueFilter.overdue)), total: overdueCount),
           ],
 
           // Bu hafta
-          SectionHeader(title: S.thisWeekMaintenance, action: _CountBadge(count: thisWeek?.length ?? 0, neutral: true)),
+          SectionHeader(title: S.thisWeekMaintenance, action: _CountBadge(count: thisWeekCount, neutral: true)),
           if (thisWeek != null && thisWeek.isEmpty) const _Hint(text: S.nothingDue),
           if (thisWeek != null && thisWeek.isNotEmpty) ...[
             ..._dueRows(thisWeek),
-            _SeeAll(onTap: () => context.push(Routes.dueMaintenance(DueFilter.thisWeek)), total: thisWeek.length),
+            _SeeAll(onTap: () => context.push(Routes.dueMaintenance(DueFilter.thisWeek)), total: thisWeekCount),
           ],
 
           // Son servisler
@@ -126,16 +137,12 @@ class _BackupCard extends ConsumerWidget {
       return Card(
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         color: theme.colorScheme.errorContainer,
-        child: ListTile(
-          leading: Icon(Icons.cloud_off_outlined, color: theme.colorScheme.onErrorContainer),
-          title: Text(driveError, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
-          subtitle: last == null
-              ? null
-              : Text(
-                  S.backupLast('${relativeDay(last)} ${formatTime(last)}'),
-                  style: TextStyle(color: theme.colorScheme.onErrorContainer),
-                ),
-          trailing: TextButton(onPressed: () => context.push(Routes.settings), child: const Text(S.goToSettings)),
+        child: _WarningCardBody(
+          icon: Icons.cloud_off_outlined,
+          title: driveError,
+          subtitle: last == null ? null : S.backupLast('${relativeDay(last)} ${formatTime(last)}'),
+          actionLabel: S.goToSettings,
+          onAction: () => context.push(Routes.settings),
         ),
       );
     }
@@ -148,7 +155,9 @@ class _BackupCard extends ConsumerWidget {
           children: [
             Icon(Icons.cloud_done_outlined, size: 18, color: theme.colorScheme.primary),
             const SizedBox(width: 8),
-            Text(S.backupLast('${relativeDay(last!)} ${formatTime(last)}'), style: theme.textTheme.bodyMedium),
+            Flexible(
+              child: Text(S.backupLast('${relativeDay(last!)} ${formatTime(last)}'), style: theme.textTheme.bodyMedium),
+            ),
           ],
         ),
       );
@@ -157,17 +166,61 @@ class _BackupCard extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       color: theme.colorScheme.errorContainer,
-      child: ListTile(
-        leading: Icon(Icons.warning_amber_rounded, color: theme.colorScheme.onErrorContainer),
-        title: Text(
-          days == null ? S.backupNone : S.backupOld(days),
-          style: TextStyle(color: theme.colorScheme.onErrorContainer, fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(S.backupNowHint, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
-        trailing: TextButton(
-          onPressed: () => exportAndShareBackup(context, ref),
-          child: const Text(S.backupNow),
-        ),
+      child: _WarningCardBody(
+        icon: Icons.warning_amber_rounded,
+        title: days == null ? S.backupNone : S.backupOld(days),
+        bold: true,
+        subtitle: S.backupNowHint,
+        actionLabel: S.backupNow,
+        onAction: () => exportAndShareBackup(context, ref),
+      ),
+    );
+  }
+}
+
+/// Uyari kartinin icerigi: ikon, baslik, aciklama ve sagda alta hizali buton.
+/// ListTile'in `trailing` butonu buyuk yazida tasiyordu; burada buton metnin altina gecer.
+class _WarningCardBody extends StatelessWidget {
+  const _WarningCardBody({
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    this.bold = false,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final bool bold;
+  final String actionLabel;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onErrorContainer;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(color: color, fontWeight: bold ? FontWeight.w600 : null)),
+                if (subtitle != null) Text(subtitle!, style: TextStyle(color: color)),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(onPressed: onAction, child: Text(actionLabel)),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

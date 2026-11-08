@@ -116,9 +116,39 @@ class DevicesDao extends DatabaseAccessor<AppDatabase> with _$DevicesDaoMixin {
   }
 
   /// Bakimi Gelenler (PLAN 7.1). Tarih araligi iki uc dahil.
-  Stream<List<DueDeviceItem>> watchDueDevices(DueFilter filter, {DateTime? now}) {
+  /// [limit] verilirse sadece ilk satirlar (Bugun ekranindaki onizleme).
+  Stream<List<DueDeviceItem>> watchDueDevices(DueFilter filter, {DateTime? now, int? limit}) {
     final range = dueRange(filter, now ?? DateTime.now());
-    return watchDueDevicesInRange(from: range.from, to: range.to, unknownOnly: filter == DueFilter.unknown);
+    return _dueQuery(from: range.from, to: range.to, unknownOnly: filter == DueFilter.unknown, limit: limit).watch();
+  }
+
+  /// Filtredeki kombi sayisi; satirlari okumadan (Bugun ekranindaki sayac).
+  Stream<int> watchDueCount(DueFilter filter, {DateTime? now}) {
+    final range = dueRange(filter, now ?? DateTime.now());
+    final where = ['d.deleted_at IS NULL', 'a.deleted_at IS NULL', 'c.deleted_at IS NULL'];
+    final vars = <Variable>[];
+    if (filter == DueFilter.unknown) {
+      where.add('d.next_maintenance_date IS NULL');
+    } else {
+      where.add('d.next_maintenance_date IS NOT NULL');
+      if (range.from != null) {
+        where.add('d.next_maintenance_date >= ?');
+        vars.add(Variable(range.from!));
+      }
+      if (range.to != null) {
+        where.add('d.next_maintenance_date <= ?');
+        vars.add(Variable(range.to!));
+      }
+    }
+    return customSelect(
+      '''
+SELECT COUNT(*) AS n FROM devices d
+JOIN addresses a ON a.id = d.address_id
+JOIN customers c ON c.id = a.customer_id
+WHERE ${where.join(' AND ')}''',
+      variables: vars,
+      readsFrom: {devices, addresses, customers},
+    ).watchSingle().map((r) => r.read<int>('n'));
   }
 
   /// Sonraki bakim tarihi [from, to] araligindaki kombiler ('yyyy-MM-dd', iki uc dahil).
@@ -129,7 +159,7 @@ class DevicesDao extends DatabaseAccessor<AppDatabase> with _$DevicesDaoMixin {
   Future<List<DueDeviceItem>> getDueDevicesInRange({String? from, String? to}) =>
       _dueQuery(from: from, to: to).get();
 
-  Selectable<DueDeviceItem> _dueQuery({String? from, String? to, bool unknownOnly = false}) {
+  Selectable<DueDeviceItem> _dueQuery({String? from, String? to, bool unknownOnly = false, int? limit}) {
     final range = (from: from, to: to);
     final q = select(devices).join([
       innerJoin(addresses, addresses.id.equalsExp(devices.addressId)),
@@ -146,6 +176,7 @@ class DevicesDao extends DatabaseAccessor<AppDatabase> with _$DevicesDaoMixin {
       if (range.to != null) q.where(devices.nextMaintenanceDate.isSmallerOrEqualValue(range.to!));
       q.orderBy([OrderingTerm.asc(devices.nextMaintenanceDate), OrderingTerm.asc(customers.searchText)]);
     }
+    if (limit != null) q.limit(limit);
 
     return q.map((r) => DueDeviceItem(
           device: r.readTable(devices),

@@ -181,9 +181,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           // Secilen gun
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
+            // Buyuk yazida buton alt satira gecer (tasma olmaz)
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(child: Text(formatDateLong(_selected), style: theme.textTheme.titleMedium)),
+                Text(formatDateLong(_selected), style: theme.textTheme.titleMedium),
                 TextButton.icon(
                   onPressed: () => context.push(Routes.appointmentNew(date: _selected)),
                   icon: const Icon(Icons.event_outlined),

@@ -179,9 +179,13 @@ class _ServiceDetail extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
+                  // Buyuk yazida tutar alt satira gecer (tasma olmaz)
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
                     children: [
-                      Expanded(child: Text(S.total, style: theme.textTheme.titleMedium)),
+                      Text(S.total, style: theme.textTheme.titleMedium),
                       Text(formatMoney(service.totalAmount), style: theme.textTheme.titleLarge),
                     ],
                   ),
@@ -302,9 +306,11 @@ class _AmountRow extends StatelessWidget {
         : theme.textTheme.bodyLarge;
     return Padding(
       padding: const EdgeInsets.only(top: 4),
-      child: Row(
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        spacing: 12,
         children: [
-          Expanded(child: Text(label, style: style)),
+          Text(label, style: style),
           Text(formatMoney(amount), style: style),
         ],
       ),

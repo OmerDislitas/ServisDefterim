@@ -24,10 +24,19 @@ class AppointmentDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(appointmentProvider(appointmentId));
     return async.when(
-      loading: () => Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(appBar: AppBar(), body: const EmptyState(icon: Icons.error_outline, message: S.loadFailed)),
+      loading: () => Scaffold(
+        appBar: AppBar(),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(),
+        body: const EmptyState(icon: Icons.error_outline, message: S.loadFailed),
+      ),
       data: (a) => a == null
-          ? Scaffold(appBar: AppBar(), body: const EmptyState(icon: Icons.search_off, message: S.recordNotFound))
+          ? Scaffold(
+              appBar: AppBar(),
+              body: const EmptyState(icon: Icons.search_off, message: S.recordNotFound),
+            )
           : _AppointmentDetail(appointment: a),
     );
   }
@@ -135,8 +144,7 @@ class _AppointmentDetail extends ConsumerWidget {
               title: Text(deviceTitle(device.brand, device.model)),
               subtitle: Text(device.type.label),
             ),
-          if (a.note != null)
-            ListTile(leading: const Icon(Icons.notes), title: Text(a.note!)),
+          if (a.note != null) ListTile(leading: const Icon(Icons.notes), title: Text(a.note!)),
           if (service != null)
             ListTile(
               onTap: () => context.push(Routes.service(service.id)),
@@ -150,20 +158,27 @@ class _AppointmentDetail extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: switch (a.status) {
-            AppointmentStatus.planned => Row(
+            // Iki buton genisligi paylasir; buyuk yazida metin alt satira gecer (tasma olmaz)
+            AppointmentStatus.planned => IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  OutlinedButton(
-                    onPressed: () async {
-                      await dao.setStatus(a.id, AppointmentStatus.cancelled);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(content: Text(S.appointmentCancelled)));
-                      }
-                    },
-                    child: const Text(S.cancelAppointment),
+                  Expanded(
+                    flex: 2,
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        await dao.setStatus(a.id, AppointmentStatus.cancelled);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(content: Text(S.appointmentCancelled)));
+                        }
+                      },
+                      child: const Text(S.cancelAppointment, textAlign: TextAlign.center),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
+                    flex: 3,
                     child: FilledButton.icon(
                       onPressed: () => context.push(Routes.newServiceFor(appointmentId: a.id)),
                       icon: const Icon(Icons.build_outlined),
@@ -172,10 +187,11 @@ class _AppointmentDetail extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
             AppointmentStatus.cancelled => FilledButton.tonal(
-                onPressed: () => dao.setStatus(a.id, AppointmentStatus.planned),
-                child: const Text(S.replanAppointment),
-              ),
+              onPressed: () => dao.setStatus(a.id, AppointmentStatus.planned),
+              child: const Text(S.replanAppointment),
+            ),
             AppointmentStatus.done => const SizedBox.shrink(),
           },
         ),

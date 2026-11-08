@@ -61,6 +61,7 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
 
 ### Diğer
 - Karanlık / aydınlık mod
+- Büyük yazı boyutu desteği: Telefonun yazı boyutu büyütüldüğünde (2 kata kadar) ekranlar taşmadan çalışır.
 - Silinen kayıtlar için "Geri al" (soft delete, bağlı kayıtlarla birlikte)
 
 ### Yol haritası
@@ -69,7 +70,7 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
 - [x] M7: Google Drive yedeği
 - [x] M8: Bakım ve randevu bildirimleri
 - [x] M9: Kombi ve servis fotoğrafları
-- [ ] M10: Cilalama ve performans
+- [x] M10: Cilalama ve performans (sürüm 1.3.0)
 
 ---
 
@@ -115,6 +116,20 @@ Veri modeliyle ilgili bazı kararlar:
 - **Para:** Tutarlar her zaman tam sayı **kuruş** olarak saklanır.
 - **Türkçe arama:** Arama için normalize edilmiş bir `searchText` kolonu tutulur (ı/i, ş/s, ğ/g …).
 - **Ekranların güncellenmesi:** Listeler ve detay ekranları Drift stream'lerini izler. Bir kayıt değişince ilgili ekranlar kendiliğinden güncellenir.
+
+---
+
+## Performans
+
+Hedefler ve ölçümler [PLAN.md](PLAN.md) Bölüm 11'de. Ekranların sorguları, örnek verinin yaklaşık 3 katıyla (1.000 müşteri, 1.700 kombi, 5.000 servis, 600 randevu) ölçülür. Ölçüm, sorguların tam tablo taramasına ya da N+1'e dönmesini yakalayan bir test olarak da çalışır:
+
+```bash
+flutter test test/perf
+```
+
+- **Ekran sorguları:** Bugün ekranının ve arama sorgularının hepsi birkaç milisaniye sürer.
+- **Bugün ekranındaki bakım listeleri:** Sadece ilk 5 satır ve sayı okunur; tam liste "Tümünü gör" ile açılır.
+- **Arka plan:** Veritabanı arka plandaki isolate'te çalışır, böylece arayüz takılmaz. Zip oluşturma da isolate'te yapılır, resim sıkıştırma yerel (native) kodda.
 
 ---
 

@@ -328,6 +328,8 @@ abstract final class S {
   static const editChecklistItem = 'Maddeyi düzenle';
   static const checklistItemLabel = 'Madde';
   static const checklistInactiveHint = 'Kapalı maddeler servis formunda görünmez';
+  static const clearSearch = 'Aramayı temizle';
+
   // Fotograflar (M9)
   static const photos = 'Fotoğraflar';
   static const addPhoto = 'Fotoğraf ekle';

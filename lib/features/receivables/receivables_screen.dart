@@ -46,10 +46,13 @@ class _ReceivablesScreenState extends ConsumerState<ReceivablesScreen> {
                         color: theme.colorScheme.errorContainer,
                         child: Padding(
                           padding: const EdgeInsets.all(16),
-                          child: Row(
+                          // Buyuk yazida tutar alt satira gecer (tasma olmaz)
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 16,
                             children: [
-                              Expanded(
-                                child: Column(
+                              Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
@@ -63,7 +66,6 @@ class _ReceivablesScreenState extends ConsumerState<ReceivablesScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
                               Text(
                                 formatMoney(total),
                                 style: theme.textTheme.headlineSmall?.copyWith(
