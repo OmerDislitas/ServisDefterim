@@ -8,6 +8,8 @@ import 'package:servis_defterim/core/db/database.dart';
 import 'package:servis_defterim/core/db/db_providers.dart';
 import 'package:servis_defterim/core/router/app_router.dart';
 import 'package:servis_defterim/core/services/notification_service.dart';
+import 'package:servis_defterim/core/services/photo_service.dart';
+import 'package:servis_defterim/features/photos/photo_actions.dart';
 import 'package:servis_defterim/core/utils/notification_plan.dart';
 
 import 'db/test_db.dart';
@@ -75,6 +77,8 @@ Future<AppDatabase> pumpApp(
   WidgetTester tester, {
   Future<void> Function(AppDatabase db)? seed,
   FakeNotificationScheduler? notifications,
+  PhotoService? photoService,
+  String? photosDir,
 }) async {
   await initializeDateFormatting('tr_TR');
   final db = createTestDb();
@@ -86,6 +90,8 @@ Future<AppDatabase> pumpApp(
     overrides: [
       databaseProvider.overrideWithValue(db),
       notificationSchedulerProvider.overrideWithValue(notifications ?? FakeNotificationScheduler()),
+      if (photoService != null) photoServiceProvider.overrideWithValue(photoService),
+      if (photosDir != null) photosDirProvider.overrideWithValue(AsyncData(photosDir)),
       packageInfoProvider.overrideWithValue(
         AsyncData(PackageInfo(appName: 'Servis Defterim', packageName: 'test', version: '1.0.0', buildNumber: '1')),
       ),

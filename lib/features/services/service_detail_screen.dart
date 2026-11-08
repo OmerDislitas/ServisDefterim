@@ -18,6 +18,7 @@ import '../customers/customers_providers.dart';
 import '../devices/devices_providers.dart';
 import 'payment_dialog.dart';
 import 'services_providers.dart';
+import '../photos/photo_strip.dart';
 
 /// Servis detayi (PLAN 7.7): tum bilgiler, odeme gecmisi, kalan alacak, "Odeme al".
 class ServiceDetailScreen extends ConsumerWidget {
@@ -264,6 +265,8 @@ class _ServiceDetail extends ConsumerWidget {
               child: Text(service.workNotes!, style: theme.textTheme.bodyLarge),
             ),
           ],
+
+          PhotoStrip(ownerType: PhotoOwnerType.service, ownerId: service.id),
 
           // Parcalar
           if (parts.isNotEmpty) ...[

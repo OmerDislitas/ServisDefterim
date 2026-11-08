@@ -1,7 +1,7 @@
 name: servis_defterim
 description: "Servis Defterim - kombi bakÄ±m ve servis takibi (internetsiz Android uygulamasÄ±)."
 publish_to: 'none'
-version: 1.1.0+4
+version: 1.2.0+5
 
 environment:
   sdk: ^3.13.7

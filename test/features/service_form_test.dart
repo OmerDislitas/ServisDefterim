@@ -95,6 +95,7 @@ void main() {
     expect(find.text('800,00 ₺'), findsWidgets);
     expect(find.text(S.paymentPaid), findsOneWidget);
     expect(find.text('Sıcak su gelmiyor'), findsOneWidget);
+    await reveal(tester, find.text('Pompa'));
     expect(find.text('Pompa'), findsOneWidget);
 
     final list = await firstOf(tester, db.servicesDao.watchServiceList());

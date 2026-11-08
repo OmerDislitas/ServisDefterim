@@ -87,6 +87,14 @@ void main() {
       await dbA.settingsDao.setValue(SettingKeys.driveAccountEmail, 'eski@telefon.com');
       await Directory(a.photosDir).create(recursive: true);
       await File(p.join(a.photosDir, 'foto1.jpg')).writeAsBytes([1, 2, 3]);
+      await File(p.join(a.photosDir, 'foto1_k.jpg')).writeAsBytes([4, 5]);
+      final someDevice = (await dbA.select(dbA.devices).get()).first;
+      await dbA.photosDao.insertPhoto(
+        ownerType: PhotoOwnerType.device,
+        ownerId: someDevice.id,
+        fileName: 'foto1.jpg',
+        thumbFileName: 'foto1_k.jpg',
+      );
       final countsA = await dbA.recordCounts();
       final customersA = await dbA.customersDao.watchCustomerList(sort: CustomerSort.name).first;
 
@@ -124,6 +132,10 @@ void main() {
       expect(await restored.settingsDao.getBool(SettingKeys.driveAutoBackup), isTrue);
       expect(await restored.settingsDao.getValue(SettingKeys.lastBackupAt), isNotNull);
       expect(File(p.join(b.photosDir, 'foto1.jpg')).readAsBytesSync(), [1, 2, 3]);
+      expect(File(p.join(b.photosDir, 'foto1_k.jpg')).readAsBytesSync(), [4, 5]);
+      final photosB = await restored.photosDao.getPhotos(PhotoOwnerType.device, someDevice.id);
+      expect(photosB.single.fileName, 'foto1.jpg');
+      expect(photosB.single.thumbFileName, 'foto1_k.jpg');
       // Guvenlik yedegi alindi
       expect(Directory(b.safetyBackupsDir).listSync(), hasLength(1));
       await restored.close();

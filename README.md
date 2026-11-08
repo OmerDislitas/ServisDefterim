@@ -46,6 +46,12 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
   - "Şimdi yedekle" ve otomatik yedek seçenekleri var. Otomatik yedek günde en fazla bir kez ve sadece veri değiştiyse alınır.
   - Drive'dan geri yükleme yapılabilir. Drive'da en yeni 15 yedek tutulur.
 
+### Fotoğraflar
+- Kombi ve servis kayıtlarına kameradan ya da galeriden (çoklu seçim) fotoğraf eklenir.
+- Kaydederken küçültülür (uzun kenar en fazla 1600 px, JPEG kalite 80) ve küçük resim üretilir. Listelerde sadece küçük resim yüklenir.
+- Tam ekran görüntüleyicide kaydırarak geçiş, iki parmakla yakınlaştırma ve silme yapılabilir.
+- Fotoğraflar yedek zip'ine dahildir. Veritabanında sadece dosya adları tutulur.
+
 ### Bildirimler
 - Bakımı yaklaşan kombiler için hatırlatma: bakım tarihinden seçilen gün kadar önce, seçilen saatte. Aynı güne düşen kombiler tek bildirimde toplanır.
 - Randevudan 1 saat önce hatırlatma
@@ -62,7 +68,7 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
 - [x] M6: Dışa / içe aktarma, imzalı release APK
 - [x] M7: Google Drive yedeği
 - [x] M8: Bakım ve randevu bildirimleri
-- [ ] M9: Servis fotoğrafları
+- [x] M9: Kombi ve servis fotoğrafları
 - [ ] M10: Cilalama ve performans
 
 ---
@@ -79,6 +85,7 @@ Uygulamanın dili Türkçedir. Sahada eldivenli ya da kirli elle kullanılacağ�
 | Yedekleme | archive (zip), share_plus, file_picker |
 | Google Drive | google_sign_in v7, googleapis (Drive v3) |
 | Bildirimler | flutter_local_notifications, timezone |
+| Fotoğraf | image_picker, flutter_image_compress |
 | Diğer | intl (tr_TR), url_launcher, connectivity_plus, uuid |
 
 Firebase kullanılmaz; uygulama sunucusuz ve tamamen çevrimdışı çalışır.
@@ -92,12 +99,12 @@ lib/
   core/
     db/            Drift veritabanı, tablolar, DAO'lar, sağlayıcılar
     router/        go_router rotaları
-    services/      Yedekleme, Google Drive ve bildirim servisleri
+    services/      Yedekleme, Google Drive, bildirim ve fotoğraf servisleri
     theme/         Material 3 tema (aydınlık / karanlık)
     utils/         Tarih, para, telefon, Türkçe arama, bakım hesapları
     strings.dart   Tüm arayüz metinleri
   features/        Ekranlar (today, calendar, customers, devices, services,
-                   appointments, receivables, due_maintenance, settings)
+                   appointments, receivables, due_maintenance, photos, settings)
   shared/          Ortak bileşenler ve eylemler
 test/              Birim, veritabanı ve widget testleri
 drift_schemas/     Şema anlık görüntüleri (migration testleri için)

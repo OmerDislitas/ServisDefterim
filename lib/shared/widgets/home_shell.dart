@@ -8,6 +8,7 @@ import '../../core/db/daos/settings_dao.dart';
 import '../../core/db/db_providers.dart';
 import '../../core/router/app_router.dart';
 import '../../core/strings.dart';
+import '../../features/photos/photo_actions.dart';
 import '../../features/settings/backup_actions.dart';
 
 /// Alt menulu ana iskelet. Sekmeler [StatefulNavigationShell] ile canli tutulur.
@@ -45,6 +46,11 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         _openRoute(launched);
       } else {
         await _checkDraft();
+      }
+      // Kamera acikken Android uygulamayi kapattiysa cekilen fotografi kaydet
+      final recovered = await recoverLostPhotos(ref);
+      if (recovered > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.photosRecovered(recovered))));
       }
       if (mounted) runAutoBackupIfNeeded(ref);
     });

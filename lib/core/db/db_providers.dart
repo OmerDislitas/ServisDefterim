@@ -5,6 +5,7 @@ import '../services/app_paths.dart';
 import '../services/backup_service.dart';
 import '../services/drive_service.dart';
 import '../services/notification_service.dart';
+import '../services/photo_service.dart';
 import 'database.dart';
 
 /// Uygulamanin tek veritabani baglantisi. Testlerde bellek ici veritabani ile override edilir.
@@ -30,6 +31,8 @@ final appPathsProvider = FutureProvider<AppPaths>((ref) => AppPaths.resolve());
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) => PackageInfo.fromPlatform());
 
 final driveServiceProvider = Provider<DriveService>((ref) => DriveService());
+
+final photoServiceProvider = Provider<PhotoService>((ref) => PhotoService());
 
 /// Yerel bildirim eklentisi. Testlerde sahtesiyle degistirilir.
 final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) => LocalNotificationScheduler());

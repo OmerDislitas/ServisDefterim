@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -427,7 +429,11 @@ class _DebugToolsState extends ConsumerState<_DebugTools> {
       ),
     );
     if (ok == true) {
-      await _run(() => ref.read(databaseProvider).wipeAllData(), S.debugWipeDone);
+      await _run(() async {
+        await ref.read(databaseProvider).wipeAllData();
+        final photos = Directory((await ref.read(appPathsProvider.future)).photosDir);
+        if (photos.existsSync()) await photos.delete(recursive: true);
+      }, S.debugWipeDone);
     }
   }
 

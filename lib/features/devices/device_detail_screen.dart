@@ -15,6 +15,7 @@ import '../../shared/widgets/service_tile.dart';
 import '../../shared/widgets/status_badges.dart';
 import '../customers/customers_providers.dart';
 import 'devices_providers.dart';
+import '../photos/photo_strip.dart';
 
 class DeviceDetailScreen extends ConsumerWidget {
   const DeviceDetailScreen({super.key, required this.deviceId});
@@ -173,6 +174,8 @@ class _DeviceDetail extends ConsumerWidget {
                   '${device.warrantyEnd!.isBefore(today()) ? S.warrantyExpired : S.warrantyActive}',
             ),
           if (device.note != null) _InfoRow(label: S.note, value: device.note!),
+
+          PhotoStrip(ownerType: PhotoOwnerType.device, ownerId: device.id),
 
           // Servis gecmisi
           const SectionHeader(title: S.serviceHistory),

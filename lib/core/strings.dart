@@ -328,6 +328,20 @@ abstract final class S {
   static const editChecklistItem = 'Maddeyi düzenle';
   static const checklistItemLabel = 'Madde';
   static const checklistInactiveHint = 'Kapalı maddeler servis formunda görünmez';
+  // Fotograflar (M9)
+  static const photos = 'Fotoğraflar';
+  static const addPhoto = 'Fotoğraf ekle';
+  static const takePhoto = 'Kamerayla çek';
+  static const pickFromGallery = 'Galeriden seç';
+  static const noPhotos = 'Henüz fotoğraf yok';
+  static const photoSaving = 'Fotoğraf kaydediliyor…';
+  static const photoFailed = 'Fotoğraf eklenemedi';
+  static const photoDeleteTitle = 'Fotoğraf silinsin mi?';
+  static const photoDeleteBody = 'Fotoğraf kalıcı olarak silinir.';
+  static const photoDeleted = 'Fotoğraf silindi';
+  static String photoCount(int i, int n) => '$i / $n';
+  static String photosRecovered(int n) => '$n fotoğraf kaydedildi';
+
   // Bildirimler (M8)
   static const settingsNotifications = 'Bildirimler';
   static const notificationsEnabled = 'Bildirimler';

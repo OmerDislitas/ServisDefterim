@@ -36,6 +36,9 @@ abstract final class SettingKeys {
   /// Bildirim izni bir kez otomatik soruldu mu (sonra sadece ayarlardan istenir).
   static const notificationPermissionAsked = 'notificationPermissionAsked';
 
+  /// Kamera acikken Android uygulamayi kapatirsa fotografin eklenecegi kayit ('device:id' / 'service:id').
+  static const pendingPhotoOwner = 'pendingPhotoOwner';
+
   /// Bu telefona ozel ayarlar: geri yuklemede yedektekiyle degistirilmez.
   static const deviceLocal = [
     driveAutoBackup,
@@ -45,6 +48,7 @@ abstract final class SettingKeys {
     themeMode,
     notificationsEnabled,
     notificationPermissionAsked,
+    pendingPhotoOwner,
   ];
 
   /// Veritabani ilk olusturulurken yazilan degerler.

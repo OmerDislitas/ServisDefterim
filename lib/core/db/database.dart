@@ -9,6 +9,7 @@ import 'daos/appointments_dao.dart';
 import 'daos/checklist_dao.dart';
 import 'daos/customers_dao.dart';
 import 'daos/devices_dao.dart';
+import 'daos/photos_dao.dart';
 import 'daos/services_dao.dart';
 import 'daos/settings_dao.dart';
 import 'tables/tables.dart';
@@ -48,7 +49,7 @@ class RecordCounts {
     ChecklistTemplates,
     AppSettings,
   ],
-  daos: [CustomersDao, DevicesDao, ServicesDao, AppointmentsDao, ChecklistDao, SettingsDao],
+  daos: [CustomersDao, DevicesDao, ServicesDao, AppointmentsDao, ChecklistDao, SettingsDao, PhotosDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
