@@ -226,6 +226,9 @@ ORDER BY $orderBy
         ..orderBy([(t) => OrderingTerm.asc(t.createdAt), (t) => OrderingTerm.asc(t.id)]))
       .watch();
 
+  Stream<Address?> watchAddress(String id) =>
+      (select(addresses)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).watchSingleOrNull();
+
   Future<Address?> getAddress(String id) =>
       (select(addresses)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
 }

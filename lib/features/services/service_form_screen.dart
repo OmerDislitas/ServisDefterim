@@ -5,7 +5,10 @@ import '../../shared/widgets/empty_state.dart';
 
 /// Yeni servis kaydi formu. M3'te doldurulacak.
 class ServiceFormScreen extends StatelessWidget {
-  const ServiceFormScreen({super.key});
+  const ServiceFormScreen({super.key, this.deviceId});
+
+  /// Kombi detayindan acildiysa onceden secili kombi.
+  final String? deviceId;
 
   @override
   Widget build(BuildContext context) {

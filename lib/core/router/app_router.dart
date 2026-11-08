@@ -3,7 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/calendar/calendar_screen.dart';
+import '../../features/customers/address_form_screen.dart';
+import '../../features/customers/customer_detail_screen.dart';
+import '../../features/customers/customer_form_screen.dart';
 import '../../features/customers/customers_screen.dart';
+import '../../features/devices/device_detail_screen.dart';
+import '../../features/devices/device_form_screen.dart';
 import '../../features/receivables/receivables_screen.dart';
 import '../../features/services/service_form_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -11,12 +16,25 @@ import '../../features/today/today_screen.dart';
 import '../../shared/widgets/home_shell.dart';
 
 abstract final class Routes {
+  // Alt menu sekmeleri
   static const today = '/today';
   static const calendar = '/calendar';
   static const customers = '/customers';
   static const receivables = '/receivables';
+
+  // Alt menu olmadan tam ekran acilan sayfalar (her sekmeden acilabilir)
   static const settings = '/settings';
   static const newService = '/services/new';
+  static const customerNew = '/customer/new';
+  static String customer(String id) => '/customer/$id';
+  static String customerEdit(String id) => '/customer/$id/edit';
+  static String addressNew(String customerId) => '/customer/$customerId/address/new';
+  static String addressEdit(String id) => '/address/$id/edit';
+  static String deviceNew(String addressId) => '/address/$addressId/device/new';
+  static String device(String id) => '/device/$id';
+  static String deviceEdit(String id) => '/device/$id/edit';
+  static String newServiceFor({String? deviceId}) =>
+      deviceId == null ? newService : '$newService?deviceId=$deviceId';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -43,16 +61,44 @@ final routerProvider = Provider<GoRouter>((ref) {
           ]),
         ],
       ),
-      // Alt menu olmadan tam ekran acilan sayfalar
-      GoRoute(
-        path: Routes.settings,
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (_, _) => const SettingsScreen(),
-      ),
+      GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(
         path: Routes.newService,
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (_, _) => const ServiceFormScreen(),
+        builder: (_, state) => ServiceFormScreen(deviceId: state.uri.queryParameters['deviceId']),
+      ),
+      // 'new' rotasi ':id' rotasindan once tanimlanmali
+      GoRoute(path: Routes.customerNew, builder: (_, _) => const CustomerFormScreen()),
+      GoRoute(
+        path: '/customer/:id',
+        builder: (_, state) => CustomerDetailScreen(customerId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (_, state) => CustomerFormScreen(customerId: state.pathParameters['id']!),
+          ),
+          GoRoute(
+            path: 'address/new',
+            builder: (_, state) => AddressFormScreen(customerId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/address/:id/edit',
+        builder: (_, state) => AddressFormScreen(addressId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/address/:id/device/new',
+        builder: (_, state) => DeviceFormScreen(addressId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/device/:id',
+        builder: (_, state) => DeviceDetailScreen(deviceId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (_, state) => DeviceFormScreen(deviceId: state.pathParameters['id']!),
+          ),
+        ],
       ),
     ],
   );

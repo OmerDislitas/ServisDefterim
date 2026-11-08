@@ -1,24 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:servis_defterim/app.dart';
-import 'package:servis_defterim/core/db/db_providers.dart';
 import 'package:servis_defterim/core/strings.dart';
 
-import 'db/test_db.dart';
+import 'helpers.dart';
 
 void main() {
-  Future<void> pumpApp(WidgetTester tester) async {
-    final db = createTestDb();
-    addTearDown(db.close);
-    await tester.pumpWidget(ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(db)],
-      child: const App(),
-    ));
-    await tester.pumpAndSettle();
-  }
-
-  testWidgets('Uygulama Bugün sekmesiyle açılır, 4 sekme görünür', (tester) async {
+  testAppWidgets('Uygulama Bugün sekmesiyle açılır, 4 sekme görünür', (tester) async {
     await pumpApp(tester);
 
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -30,7 +17,7 @@ void main() {
     expect(find.text(S.newService), findsOneWidget);
   });
 
-  testWidgets('Sekmeler arasında geçiş yapılır', (tester) async {
+  testAppWidgets('Sekmeler arasında geçiş yapılır', (tester) async {
     await pumpApp(tester);
 
     await tester.tap(find.text(S.tabCustomers));
@@ -44,7 +31,7 @@ void main() {
     expect(find.text(S.newService), findsNothing);
   });
 
-  testWidgets('Ayarlar ve Yeni Servis sayfaları açılır', (tester) async {
+  testAppWidgets('Ayarlar ve Yeni Servis sayfaları açılır', (tester) async {
     await pumpApp(tester);
 
     await tester.tap(find.byTooltip(S.settings));
