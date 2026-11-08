@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:servis_defterim/app.dart';
 import 'package:servis_defterim/core/db/database.dart';
 import 'package:servis_defterim/core/db/db_providers.dart';
@@ -41,7 +42,14 @@ Future<AppDatabase> pumpApp(WidgetTester tester, {Future<void> Function(AppDatab
   addTearDown(db.close);
   if (seed != null) await seed(db);
   await tester.pumpWidget(ProviderScope(
-    overrides: [databaseProvider.overrideWithValue(db)],
+    // Testte hata veren provider'lar tekrar denenmesin (zamanlayici birakir)
+    retry: (_, _) => null,
+    overrides: [
+      databaseProvider.overrideWithValue(db),
+      packageInfoProvider.overrideWithValue(
+        AsyncData(PackageInfo(appName: 'Servis Defterim', packageName: 'test', version: '1.0.0', buildNumber: '1')),
+      ),
+    ],
     child: const App(),
   ));
   await tester.pumpAndSettle();

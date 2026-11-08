@@ -17,6 +17,7 @@ import '../../shared/widgets/new_service_fab.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/service_tile.dart';
 import '../due_maintenance/due_maintenance_screen.dart';
+import '../settings/backup_actions.dart';
 
 final _todayAppointmentsProvider = StreamProvider.autoDispose<List<AppointmentListItem>>((ref) {
   final t = today();
@@ -144,7 +145,7 @@ class _BackupCard extends ConsumerWidget {
         ),
         subtitle: Text(S.backupNowHint, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
         trailing: TextButton(
-          onPressed: () => context.push(Routes.settings),
+          onPressed: () => exportAndShareBackup(context, ref),
           child: const Text(S.backupNow),
         ),
       ),

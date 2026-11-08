@@ -9,7 +9,9 @@ import '../../core/db/db_providers.dart';
 import '../../core/db/sample_data.dart';
 import '../../core/router/app_router.dart';
 import '../../core/strings.dart';
+import '../../core/utils/dates.dart';
 import '../../shared/widgets/section_header.dart';
+import 'backup_actions.dart';
 
 final _defaultIntervalProvider = StreamProvider.autoDispose<int>(
   (ref) => ref
@@ -17,6 +19,14 @@ final _defaultIntervalProvider = StreamProvider.autoDispose<int>(
       .settingsDao
       .watchValue(SettingKeys.defaultIntervalMonths)
       .map((v) => int.tryParse(v ?? '') ?? 12),
+);
+
+final _lastBackupProvider = StreamProvider.autoDispose<DateTime?>(
+  (ref) => ref
+      .watch(databaseProvider)
+      .settingsDao
+      .watchValue(SettingKeys.lastBackupAt)
+      .map((v) => v == null ? null : DateTime.tryParse(v)),
 );
 
 class SettingsScreen extends ConsumerWidget {
@@ -56,10 +66,31 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final interval = ref.watch(_defaultIntervalProvider).value ?? 12;
+    final lastBackup = ref.watch(_lastBackupProvider).value;
     return Scaffold(
       appBar: AppBar(title: const Text(S.settings)),
       body: ListView(
         children: [
+          const SectionHeader(title: S.backup),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              lastBackup == null ? S.backupNone : S.backupLast(formatDateTime(lastBackup)),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.ios_share),
+            title: const Text(S.exportBackup),
+            subtitle: const Text(S.exportBackupHint),
+            onTap: () => exportAndShareBackup(context, ref),
+          ),
+          ListTile(
+            leading: const Icon(Icons.restore),
+            title: const Text(S.restoreFromFile),
+            subtitle: const Text(S.restoreFromFileHint),
+            onTap: () => restoreFromFile(context, ref),
+          ),
           const SectionHeader(title: S.settingsMaintenance),
           ListTile(
             leading: const Icon(Icons.event_repeat_outlined),
@@ -87,7 +118,45 @@ class SettingsScreen extends ConsumerWidget {
             leading: Icon(Icons.info_outline),
             title: Text(S.otherSettingsLater),
           ),
+          const _About(),
           if (kDebugMode) const _DebugTools(),
+        ],
+      ),
+    );
+  }
+}
+
+/// Hakkinda: uygulama surumu, sema surumu, kayit sayilari (PLAN 7.10).
+class _About extends ConsumerWidget {
+  const _About();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final info = ref.watch(packageInfoProvider).value;
+    final counts = ref.watch(recordCountsProvider).value;
+    final schema = ref.watch(databaseProvider).schemaVersion;
+    final style = Theme.of(context).textTheme.bodyMedium;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: S.about),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (info != null) Text(S.appVersion('${info.version}+${info.buildNumber}'), style: style),
+                Text(S.schemaVersion(schema), style: style),
+                if (counts != null)
+                  Text(
+                    S.recordCounts(counts.customers, counts.devices, counts.services, counts.appointments),
+                    style: style,
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );

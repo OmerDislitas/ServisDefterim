@@ -245,6 +245,34 @@ abstract final class S {
   static const debtServices = 'Borçlu servisler';
   static const noReceivables = 'Alacak yok. Tüm servislerin ödemesi alınmış.';
 
+  // Yedekleme
+  static const backup = 'Yedekleme';
+  static const exportBackup = 'Yedeği dışa aktar ve paylaş';
+  static const exportBackupHint = 'WhatsApp ile kendinize ya da başka bir yere gönderin';
+  static const restoreFromFile = 'Dosyadan geri yükle';
+  static const restoreFromFileHint = 'Daha önce aldığınız bir yedek dosyasını seçin';
+  static const backupPreparing = 'Yedek hazırlanıyor…';
+  static const backupShareSubject = 'Servis Defterim yedeği';
+  static const backupShared = 'Yedek paylaşıldı';
+  static const backupFailed = 'Yedek oluşturulamadı. Telefonda yer olduğundan emin olun.';
+  static const backupInvalidFile = 'Bu dosya geçerli bir Servis Defterim yedeği değil.';
+  static const backupWrongApp = 'Bu yedek başka bir uygulamaya ait.';
+  static const backupNewerVersion =
+      'Bu yedek uygulamanın daha yeni bir sürümüyle alınmış, önce uygulamayı güncelleyin.';
+  static const restoreConfirmTitle = 'Yedek geri yüklensin mi?';
+  static String restoreConfirmBody(int customers, int services, String date) =>
+      'Bu yedekte $customers müşteri, $services servis kaydı var ($date).\n\n'
+      'Mevcut tüm verilerin yerini alacak. Devam edilsin mi?';
+  static const restore = 'Geri yükle';
+  static const restoring = 'Geri yükleniyor…';
+  static const restoreDone = 'Yedek geri yüklendi';
+  static const restoreFailed =
+      'Geri yükleme başarısız oldu. Verileriniz önceki haline döndürüldü.';
+  static const ok = 'Tamam';
+  static const about = 'Hakkında';
+  static String appVersion(String v) => 'Uygulama sürümü: $v';
+  static String schemaVersion(int v) => 'Veritabanı şema sürümü: $v';
+
   // WhatsApp sablonu
   static const whatsappTemplate = 'WhatsApp mesaj şablonu';
   static const whatsappTemplateHint = 'Bakım hatırlatmasında gönderilecek mesaj';

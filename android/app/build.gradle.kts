@@ -1,8 +1,19 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// Release imzalama bilgileri android/key.properties dosyasindan okunur.
+// Bu dosya ve keystore ASLA commit edilmez (.gitignore). Ornek: android/key.properties.example
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) load(FileInputStream(keystorePropertiesFile))
+}
+val hasReleaseKey = keystorePropertiesFile.exists()
 
 android {
     namespace = "com.faruk.servis_defterim"
@@ -18,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        // Yer tutucu; ilk gercek APK'dan (M6) sonra degistirilmemeli.
+        // Ilk gercek APK verildi; DEGISTIRILMEMELI (yoksa guncelleme eskisinin ustune kurulmaz).
         applicationId = "com.faruk.servisdefterim"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
@@ -30,11 +41,27 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKey) {
+                signingConfigs.getByName("release")
+            } else {
+                // key.properties yoksa derleme calissin diye debug anahtari.
+                // Bu APK USTAYA VERILMEMELI: guncellemeler uzerine kurulamaz.
+                logger.warn("UYARI: android/key.properties bulunamadi, release APK debug anahtariyla imzalaniyor!")
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

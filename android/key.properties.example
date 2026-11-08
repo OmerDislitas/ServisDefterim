@@ -1,0 +1,6 @@
+# Bu dosyayi "key.properties" adiyla kopyalayip kendi bilgilerinizi yazin.
+# key.properties ve .jks dosyasi ASLA git'e eklenmez (.gitignore'da).
+storePassword=KEYSTORE_SIFRENIZ
+keyPassword=ANAHTAR_SIFRENIZ
+keyAlias=servisdefterim
+storeFile=C:/Users/omer/servis-defterim-imza.jks

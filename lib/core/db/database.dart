@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../services/app_paths.dart';
 import '../strings.dart';
 import 'daos/appointments_dao.dart';
 import 'daos/checklist_dao.dart';
@@ -52,7 +55,32 @@ class AppDatabase extends _$AppDatabase {
 
   static const fileName = 'servis_defterim';
 
-  static QueryExecutor _openConnection() => driftDatabase(name: fileName);
+  /// Dosya yolu acikca verilir; yedekleme/geri yukleme ayni dosyayla calisir.
+  static QueryExecutor _openConnection() => driftDatabase(
+        name: fileName,
+        native: DriftNativeOptions(databasePath: () async => (await AppPaths.resolve()).dbFile),
+      );
+
+  bool _closed = false;
+  StreamSubscription<Set<TableUpdate>>? _changeSub;
+
+  /// Geri yuklemede baglanti elle kapatilir; provider'in ikinci kapatmasi zararsiz olmali.
+  @override
+  Future<void> close() async {
+    if (_closed) return;
+    _closed = true;
+    await _changeSub?.cancel();
+    await super.close();
+  }
+
+  /// Is verisi her degistiginde `lastLocalChangeAt` yazilir (otomatik Drive yedegi icin, PLAN 8.4).
+  /// Ayarlar tablosundaki degisiklikler (taslak vb.) sayilmaz.
+  void startChangeTracking() {
+    _changeSub ??= tableUpdates().listen((updates) {
+      if (_closed || updates.every((u) => u.table == appSettings.actualTableName)) return;
+      settingsDao.setValue(SettingKeys.lastLocalChangeAt, DateTime.now().toIso8601String());
+    });
+  }
 
   /// Ilk APK (M6) sonrasinda her sema degisikliginde artirilir ve migration yazilir.
   @override
@@ -197,19 +225,23 @@ class AppDatabase extends _$AppDatabase {
         }
       });
 
-  Stream<RecordCounts> watchRecordCounts() => customSelect(
+  Selectable<RecordCounts> _recordCounts() => customSelect(
         'SELECT '
         '(SELECT COUNT(*) FROM customers WHERE deleted_at IS NULL) AS customers, '
         '(SELECT COUNT(*) FROM devices WHERE deleted_at IS NULL) AS devices, '
         '(SELECT COUNT(*) FROM service_records WHERE deleted_at IS NULL) AS services, '
         '(SELECT COUNT(*) FROM appointments WHERE deleted_at IS NULL) AS appointments',
         readsFrom: {customers, devices, serviceRecords, appointments},
-      ).watchSingle().map(
-            (r) => RecordCounts(
-              customers: r.read<int>('customers'),
-              devices: r.read<int>('devices'),
-              services: r.read<int>('services'),
-              appointments: r.read<int>('appointments'),
-            ),
-          );
+      ).map(
+        (r) => RecordCounts(
+          customers: r.read<int>('customers'),
+          devices: r.read<int>('devices'),
+          services: r.read<int>('services'),
+          appointments: r.read<int>('appointments'),
+        ),
+      );
+
+  Stream<RecordCounts> watchRecordCounts() => _recordCounts().watchSingle();
+
+  Future<RecordCounts> recordCounts() => _recordCounts().getSingle();
 }
