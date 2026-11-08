@@ -2,11 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:servis_defterim/app.dart';
+import 'package:servis_defterim/core/db/db_providers.dart';
 import 'package:servis_defterim/core/strings.dart';
+
+import 'db/test_db.dart';
 
 void main() {
   Future<void> pumpApp(WidgetTester tester) async {
-    await tester.pumpWidget(const ProviderScope(child: App()));
+    final db = createTestDb();
+    addTearDown(db.close);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [databaseProvider.overrideWithValue(db)],
+      child: const App(),
+    ));
     await tester.pumpAndSettle();
   }
 
