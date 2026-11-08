@@ -269,6 +269,36 @@ abstract final class S {
   static const restoreFailed =
       'Geri yükleme başarısız oldu. Verileriniz önceki haline döndürüldü.';
   static const ok = 'Tamam';
+
+  // Google Drive
+  static const googleDrive = 'Google Drive';
+  static const driveNotConfigured = 'Google Drive henüz yapılandırılmadı';
+  static const driveNotConfiguredHint = 'Kurulum tamamlanınca buradan bağlanabileceksiniz.';
+  static const driveConnect = "Google Drive'a bağlan";
+  static const driveConnectHint = 'Yedekler Drive\'ınızda "Servis Defterim Yedekleri" klasörüne yüklenir';
+  static String driveConnectedAs(String email) => 'Bağlı hesap: $email';
+  static const driveDisconnect = 'Bağlantıyı kes';
+  static const driveDisconnectTitle = 'Drive bağlantısı kesilsin mi?';
+  static const driveDisconnectBody = "Drive'daki yedekler silinmez. Otomatik yedek kapanır.";
+  static const driveConnected = "Google Drive'a bağlandı";
+  static const driveAutoBackup = 'Otomatik Drive yedeği';
+  static const driveAutoBackupHint = 'Uygulama açıldığında, günde en fazla bir kez, veri değiştiyse';
+  static const driveBackupNow = "Drive'a şimdi yedekle";
+  static String driveLastBackup(String when) => 'Son Drive yedeği: $when';
+  static const driveNoBackupYet = 'Henüz Drive yedeği yok';
+  static const driveUploading = "Drive'a yükleniyor…";
+  static const driveBackupDone = "Drive'a yedeklendi";
+  static const driveRestore = "Drive'dan geri yükle";
+  static const driveRestoreHint = "Drive'daki yedeklerden birini seçin";
+  static const driveLoadingList = 'Yedekler getiriliyor…';
+  static const driveNoBackups = "Drive'da yedek bulunamadı";
+  static const driveDownloading = 'Yedek indiriliyor…';
+  static const driveConnectFailed =
+      "Google Drive'a bağlanılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.";
+  static const driveNetworkError = "Drive'a bağlanılamadı. İnternet bağlantınızı kontrol edin.";
+  static const driveReconnect = 'Drive yedeği başarısız: tekrar bağlanın';
+  static const driveFailed = 'Drive işlemi başarısız oldu. Daha sonra tekrar deneyin.';
+  static const goToSettings = 'Ayarlar';
   static const about = 'Hakkında';
   static String appVersion(String v) => 'Uygulama sürümü: $v';
   static String schemaVersion(int v) => 'Veritabanı şema sürümü: $v';

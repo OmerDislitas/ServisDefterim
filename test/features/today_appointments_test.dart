@@ -47,6 +47,19 @@ void main() {
     expect(find.text(S.backupLast('${S.today} ${formatTime(now)}')), findsOneWidget);
   });
 
+  testAppWidgets('Bugün: Drive hatası kartta gösterilir', (tester) async {
+    await pumpApp(tester, seed: (db) => db.settingsDao.setValue(SettingKeys.driveLastError, S.driveReconnect));
+    expect(find.text(S.driveReconnect), findsOneWidget);
+    expect(find.text(S.goToSettings), findsOneWidget);
+  });
+
+  testAppWidgets('Ayarlar: Drive yapılandırılmamışsa bilgi gösterilir', (tester) async {
+    await pumpApp(tester);
+    await pushRoute(tester, Routes.settings);
+    expect(find.text(S.driveNotConfigured), findsOneWidget);
+    expect(find.text(S.exportBackup), findsOneWidget);
+  });
+
   testAppWidgets('Randevu oluşturulur, randevudan servis başlatılır ve randevu kapanır', (tester) async {
     late ({String customerId, String addressId, String deviceId}) ids;
     final db = await pumpApp(tester, seed: (db) async => ids = await createCustomerWithDevice(db));

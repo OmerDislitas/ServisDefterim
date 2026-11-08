@@ -119,6 +119,26 @@ class _BackupCard extends ConsumerWidget {
     final last = async.value;
     final theme = Theme.of(context);
     final days = last == null ? null : daysBetween(last, DateTime.now());
+    final driveError = ref.watch(settingValueProvider(SettingKeys.driveLastError)).value;
+
+    // Drive hatasi kullaniciyi engellemez, burada gosterilir (PLAN 8.4)
+    if (driveError != null) {
+      return Card(
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        color: theme.colorScheme.errorContainer,
+        child: ListTile(
+          leading: Icon(Icons.cloud_off_outlined, color: theme.colorScheme.onErrorContainer),
+          title: Text(driveError, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
+          subtitle: last == null
+              ? null
+              : Text(
+                  S.backupLast('${relativeDay(last)} ${formatTime(last)}'),
+                  style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                ),
+          trailing: TextButton(onPressed: () => context.push(Routes.settings), child: const Text(S.goToSettings)),
+        ),
+      );
+    }
 
     // Son yedek 7 gunden yeniyse kucuk bir satir yeter
     if (days != null && days < 7) {

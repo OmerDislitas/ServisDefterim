@@ -91,6 +91,7 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text(S.restoreFromFileHint),
             onTap: () => restoreFromFile(context, ref),
           ),
+          const _DriveSection(),
           const SectionHeader(title: S.settingsMaintenance),
           ListTile(
             leading: const Icon(Icons.event_repeat_outlined),
@@ -122,6 +123,75 @@ class SettingsScreen extends ConsumerWidget {
           if (kDebugMode) const _DebugTools(),
         ],
       ),
+    );
+  }
+}
+
+/// Google Drive: bagla / bagli hesap / baglantiyi kes, simdi yedekle, otomatik yedek,
+/// Drive'dan geri yukle (PLAN 7.10, 8.4).
+class _DriveSection extends ConsumerWidget {
+  const _DriveSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final drive = ref.watch(driveServiceProvider);
+    if (!drive.isConfigured) {
+      return const ListTile(
+        leading: Icon(Icons.cloud_off_outlined),
+        title: Text(S.driveNotConfigured),
+        subtitle: Text(S.driveNotConfiguredHint),
+      );
+    }
+
+    final email = ref.watch(settingValueProvider(SettingKeys.driveAccountEmail)).value;
+    final auto = ref.watch(settingValueProvider(SettingKeys.driveAutoBackup)).value == 'true';
+    final lastDrive = DateTime.tryParse(ref.watch(settingValueProvider(SettingKeys.lastDriveBackupAt)).value ?? '');
+    final error = ref.watch(settingValueProvider(SettingKeys.driveLastError)).value;
+
+    if (email == null) {
+      return ListTile(
+        leading: const Icon(Icons.add_to_drive_outlined),
+        title: const Text(S.driveConnect),
+        subtitle: const Text(S.driveConnectHint),
+        onTap: () => connectDrive(context, ref),
+      );
+    }
+
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.cloud_done_outlined),
+          title: const Text(S.googleDrive),
+          subtitle: Text(S.driveConnectedAs(email)),
+          trailing: TextButton(onPressed: () => disconnectDrive(context, ref), child: const Text(S.driveDisconnect)),
+        ),
+        if (error != null)
+          ListTile(
+            leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
+            title: Text(error, style: TextStyle(color: theme.colorScheme.error)),
+            onTap: () => connectDrive(context, ref),
+          ),
+        ListTile(
+          leading: const Icon(Icons.backup_outlined),
+          title: const Text(S.driveBackupNow),
+          subtitle: Text(lastDrive == null ? S.driveNoBackupYet : S.driveLastBackup(formatDateTime(lastDrive))),
+          onTap: () => backupToDriveNow(context, ref),
+        ),
+        SwitchListTile(
+          secondary: const Icon(Icons.autorenew),
+          title: const Text(S.driveAutoBackup),
+          subtitle: const Text(S.driveAutoBackupHint),
+          value: auto,
+          onChanged: (v) => ref.read(databaseProvider).settingsDao.setBool(SettingKeys.driveAutoBackup, v),
+        ),
+        ListTile(
+          leading: const Icon(Icons.cloud_download_outlined),
+          title: const Text(S.driveRestore),
+          subtitle: const Text(S.driveRestoreHint),
+          onTap: () => restoreFromDrive(context, ref),
+        ),
+      ],
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../core/db/daos/settings_dao.dart';
 import '../../core/db/db_providers.dart';
 import '../../core/router/app_router.dart';
 import '../../core/strings.dart';
+import '../../features/settings/backup_actions.dart';
 
 /// Alt menulu ana iskelet. Sekmeler [StatefulNavigationShell] ile canli tutulur.
 /// Acilista yarim kalan servis taslagi varsa devam edilip edilmeyecegini sorar (PLAN 7.6).
@@ -19,11 +20,24 @@ class HomeShell extends ConsumerStatefulWidget {
 }
 
 class _HomeShellState extends ConsumerState<HomeShell> {
+  late final AppLifecycleListener _lifecycle;
+
   @override
   void initState() {
     super.initState();
-    // Ilk kare cizildikten sonra (acilisi yavaslatmamak icin)
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkDraft());
+    // Ilk kare cizildikten sonra (acilisi yavaslatmamak icin, PLAN 11)
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkDraft();
+      if (mounted) runAutoBackupIfNeeded(ref);
+    });
+    // On plana gelince firsatci Drive yedegi (PLAN 8.4)
+    _lifecycle = AppLifecycleListener(onResume: () => runAutoBackupIfNeeded(ref));
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
   }
 
   Future<void> _checkDraft() async {

@@ -259,6 +259,10 @@ class BackupService {
     required AppDatabase Function() reopen,
   }) async {
     final schemaVersion = current.schemaVersion;
+    // Bu telefona ozel ayarlar (Drive hesabi vb.) yedektekilerle ezilmesin
+    final deviceLocal = {
+      for (final k in SettingKeys.deviceLocal) k: await current.settingsDao.getStoredValue(k),
+    };
     final safety = await createSafetyBackup(current);
     await current.close();
 
@@ -267,6 +271,9 @@ class BackupService {
       await replaceData(preview);
       fresh = reopen();
       await fresh.recordCounts(); // baglantiyi acar, gerekirse migration'lari calistirir
+      for (final e in deviceLocal.entries) {
+        await fresh.settingsDao.setValue(e.key, e.value);
+      }
       await fresh.settingsDao.setValue(SettingKeys.lastBackupAt, preview.manifest.createdAt.toIso8601String());
       return fresh;
     } catch (_) {

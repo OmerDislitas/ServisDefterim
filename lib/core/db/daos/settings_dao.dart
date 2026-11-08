@@ -19,6 +19,15 @@ abstract final class SettingKeys {
   /// Yarim kalan yeni servis formu (JSON). Bkz. ServiceDraft.
   static const serviceDraft = 'serviceDraft';
 
+  /// Son basarili Drive yedegi (otomatik yedek 24 saat kurali icin).
+  static const lastDriveBackupAt = 'lastDriveBackupAt';
+
+  /// Son Drive hatasi (Bugun ekraninda gosterilir); basarili yedekte silinir.
+  static const driveLastError = 'driveLastError';
+
+  /// Bu telefona ozel ayarlar: geri yuklemede yedektekiyle degistirilmez.
+  static const deviceLocal = [driveAutoBackup, driveAccountEmail, lastDriveBackupAt, driveLastError];
+
   /// Veritabani ilk olusturulurken yazilan degerler.
   static const defaults = {
     defaultIntervalMonths: '12',
@@ -38,6 +47,11 @@ class SettingsDao extends DatabaseAccessor<AppDatabase> with _$SettingsDaoMixin 
 
   Future<String?> getValue(String key) async =>
       (await _byKey(key).getSingleOrNull())?.value ?? SettingKeys.defaults[key];
+
+  /// Varsayilana dusmeden, sadece kayitli deger (yoksa null).
+  Future<String?> getStoredValue(String key) async => (await _byKey(key).getSingleOrNull())?.value;
+
+  Future<DateTime?> getDateTime(String key) async => DateTime.tryParse(await getValue(key) ?? '');
 
   Stream<String?> watchValue(String key) =>
       _byKey(key).watchSingleOrNull().map((r) => r?.value ?? SettingKeys.defaults[key]);

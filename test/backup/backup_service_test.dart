@@ -84,6 +84,7 @@ void main() {
         appointmentCount: 20,
       );
       await dbA.settingsDao.setInt(SettingKeys.defaultIntervalMonths, 6);
+      await dbA.settingsDao.setValue(SettingKeys.driveAccountEmail, 'eski@telefon.com');
       await Directory(a.photosDir).create(recursive: true);
       await File(p.join(a.photosDir, 'foto1.jpg')).writeAsBytes([1, 2, 3]);
       final countsA = await dbA.recordCounts();
@@ -97,6 +98,8 @@ void main() {
       final b = pathsFor('b');
       final dbB = await openFileDb(b);
       expect((await dbB.recordCounts()).customers, 0);
+      await dbB.settingsDao.setValue(SettingKeys.driveAccountEmail, 'yeni@telefon.com');
+      await dbB.settingsDao.setBool(SettingKeys.driveAutoBackup, true);
       final serviceB = serviceFor(b);
 
       final preview = await serviceB.inspect(zip, currentSchemaVersion: dbB.schemaVersion);
@@ -116,6 +119,9 @@ void main() {
       final customersB = await restored.customersDao.watchCustomerList(sort: CustomerSort.name).first;
       expect(customersB.map((c) => (c.id, c.name, c.phone)), customersA.map((c) => (c.id, c.name, c.phone)));
       expect(await restored.settingsDao.getInt(SettingKeys.defaultIntervalMonths), 6);
+      // Telefona ozel ayarlar yedektekiyle ezilmez
+      expect(await restored.settingsDao.getValue(SettingKeys.driveAccountEmail), 'yeni@telefon.com');
+      expect(await restored.settingsDao.getBool(SettingKeys.driveAutoBackup), isTrue);
       expect(await restored.settingsDao.getValue(SettingKeys.lastBackupAt), isNotNull);
       expect(File(p.join(b.photosDir, 'foto1.jpg')).readAsBytesSync(), [1, 2, 3]);
       // Guvenlik yedegi alindi
