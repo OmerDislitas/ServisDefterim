@@ -64,7 +64,7 @@ void main() {
     expect(find.text('Kayabaşı, Başakşehir'), findsOneWidget);
     expect(find.text(S.noDevicesAtAddress), findsOneWidget);
 
-    final customers = await db.customersDao.watchCustomerList().first;
+    final customers = await firstOf(tester, db.customersDao.watchCustomerList());
     expect(customers.single.phone, '5321112233');
 
     // Listeye donuste musteri gorunur

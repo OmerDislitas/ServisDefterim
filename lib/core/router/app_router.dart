@@ -10,7 +10,9 @@ import '../../features/customers/customers_screen.dart';
 import '../../features/devices/device_detail_screen.dart';
 import '../../features/devices/device_form_screen.dart';
 import '../../features/receivables/receivables_screen.dart';
+import '../../features/services/service_detail_screen.dart';
 import '../../features/services/service_form_screen.dart';
+import '../../features/settings/checklist_settings_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/today/today_screen.dart';
 import '../../shared/widgets/home_shell.dart';
@@ -33,8 +35,14 @@ abstract final class Routes {
   static String deviceNew(String addressId) => '/address/$addressId/device/new';
   static String device(String id) => '/device/$id';
   static String deviceEdit(String id) => '/device/$id/edit';
-  static String newServiceFor({String? deviceId}) =>
-      deviceId == null ? newService : '$newService?deviceId=$deviceId';
+  static String newServiceFor({String? deviceId, String? appointmentId}) {
+    final q = {'deviceId': ?deviceId, 'appointmentId': ?appointmentId};
+    return q.isEmpty ? newService : Uri(path: newService, queryParameters: q).toString();
+  }
+  static const resumeServiceDraft = '$newService?draft=1';
+  static String service(String id) => '/service/$id';
+  static String serviceEdit(String id) => '/service/$id/edit';
+  static const checklistSettings = '/settings/checklist';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -61,10 +69,31 @@ final routerProvider = Provider<GoRouter>((ref) {
           ]),
         ],
       ),
-      GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
+      GoRoute(
+        path: Routes.settings,
+        builder: (_, _) => const SettingsScreen(),
+        routes: [GoRoute(path: 'checklist', builder: (_, _) => const ChecklistSettingsScreen())],
+      ),
       GoRoute(
         path: Routes.newService,
-        builder: (_, state) => ServiceFormScreen(deviceId: state.uri.queryParameters['deviceId']),
+        builder: (_, state) {
+          final q = state.uri.queryParameters;
+          return ServiceFormScreen(
+            deviceId: q['deviceId'],
+            appointmentId: q['appointmentId'],
+            resumeDraft: q['draft'] == '1',
+          );
+        },
+      ),
+      GoRoute(
+        path: '/service/:id',
+        builder: (_, state) => ServiceDetailScreen(serviceId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (_, state) => ServiceFormScreen(serviceId: state.pathParameters['id']!),
+          ),
+        ],
       ),
       // 'new' rotasi ':id' rotasindan once tanimlanmali
       GoRoute(path: Routes.customerNew, builder: (_, _) => const CustomerFormScreen()),

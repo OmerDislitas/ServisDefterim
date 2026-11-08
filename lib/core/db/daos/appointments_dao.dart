@@ -86,6 +86,9 @@ class AppointmentsDao extends DatabaseAccessor<AppDatabase> with _$AppointmentsD
         AppointmentsCompanion(status: Value(status), updatedAt: Value(DateTime.now())),
       );
 
+  Future<Appointment?> getAppointment(String id) =>
+      (select(appointments)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
+
   Stream<Appointment?> watchAppointment(String id) =>
       (select(appointments)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).watchSingleOrNull();
 

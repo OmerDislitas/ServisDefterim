@@ -40,6 +40,8 @@ DateTime addMonths(DateTime d, int months) {
 
 DateTime addDays(DateTime d, int days) => DateTime(d.year, d.month, d.day + days);
 
+bool isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
+
 /// "8 Kasım 2026, Pazar"
 String formatDateLong(DateTime d) => DateFormat('d MMMM y, EEEE', 'tr_TR').format(d);
 

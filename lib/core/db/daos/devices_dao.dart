@@ -97,10 +97,13 @@ class DevicesDao extends DatabaseAccessor<AppDatabase> with _$DevicesDaoMixin {
   Future<Device?> getDevice(String id) =>
       (select(devices)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
 
-  Stream<List<Device>> watchDevicesForAddress(String addressId) => (select(devices)
-        ..where((t) => t.addressId.equals(addressId) & t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.asc(t.createdAt), (t) => OrderingTerm.asc(t.id)]))
-      .watch();
+  SimpleSelectStatement<$DevicesTable, Device> _devicesAt(String addressId) => select(devices)
+    ..where((t) => t.addressId.equals(addressId) & t.deletedAt.isNull())
+    ..orderBy([(t) => OrderingTerm.asc(t.createdAt), (t) => OrderingTerm.asc(t.id)]);
+
+  Stream<List<Device>> watchDevicesForAddress(String addressId) => _devicesAt(addressId).watch();
+
+  Future<List<Device>> getDevicesForAddress(String addressId) => _devicesAt(addressId).get();
 
   /// Bir musterinin tum adreslerindeki cihazlar.
   Stream<List<Device>> watchDevicesForCustomer(String customerId) {

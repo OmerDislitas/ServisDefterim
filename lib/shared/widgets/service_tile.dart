@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/db/daos/services_dao.dart';
+import '../../core/router/app_router.dart';
 import '../../core/utils/dates.dart';
 import '../../core/utils/money.dart';
 import '../formatters.dart';
@@ -23,7 +25,7 @@ class ServiceTile extends StatelessWidget {
       if (showCustomer) item.customerName,
     ].join(' · ');
     return ListTile(
-      onTap: onTap,
+      onTap: onTap ?? () => context.push(Routes.service(item.id)),
       leading: const Icon(Icons.build_circle_outlined),
       title: Text(formatDate(item.date)),
       subtitle: Text(subtitle),

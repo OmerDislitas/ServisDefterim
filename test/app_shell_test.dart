@@ -36,7 +36,7 @@ void main() {
 
     await tester.tap(find.byTooltip(S.settings));
     await tester.pumpAndSettle();
-    expect(find.text(S.settingsEmpty), findsOneWidget);
+    expect(find.text(S.defaultInterval), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
 
     await tester.tap(find.byType(BackButton));
@@ -44,6 +44,6 @@ void main() {
 
     await tester.tap(find.text(S.newService));
     await tester.pumpAndSettle();
-    expect(find.text(S.newServiceEmpty), findsOneWidget);
+    expect(find.text(S.searchCustomerHint), findsOneWidget);
   });
 }

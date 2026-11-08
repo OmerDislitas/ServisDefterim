@@ -9,9 +9,9 @@ import '../../core/db/db_providers.dart';
 import '../../core/strings.dart';
 import '../../core/utils/dates.dart';
 import '../../core/utils/maintenance.dart';
-import '../../core/utils/text_normalize.dart';
 import '../../shared/widgets/date_field.dart';
 import '../../shared/widgets/form_scaffold.dart';
+import '../../shared/widgets/suggestion_field.dart';
 import 'devices_providers.dart';
 
 /// Yeni kombi ([addressId]) ya da kombi duzenleme ([deviceId]).
@@ -29,7 +29,6 @@ class DeviceFormScreen extends ConsumerStatefulWidget {
 class _DeviceFormScreenState extends ConsumerState<DeviceFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _brand = TextEditingController();
-  final _brandFocus = FocusNode();
   final _model = TextEditingController();
   final _serial = TextEditingController();
   final _year = TextEditingController();
@@ -75,7 +74,6 @@ class _DeviceFormScreenState extends ConsumerState<DeviceFormScreen> {
     for (final c in [_brand, _model, _serial, _year, _interval, _note]) {
       c.dispose();
     }
-    _brandFocus.dispose();
     super.dispose();
   }
 
@@ -139,7 +137,12 @@ class _DeviceFormScreenState extends ConsumerState<DeviceFormScreen> {
       saving: _saving,
       onSave: _save,
       children: [
-        _BrandField(controller: _brand, focusNode: _brandFocus, options: brands),
+        SuggestionField(
+          controller: _brand,
+          options: brands,
+          label: S.brand,
+          validator: (v) => (v == null || v.trim().isEmpty) ? S.requiredField : null,
+        ),
         const SizedBox(height: 12),
         TextFormField(
           controller: _model,
@@ -232,49 +235,3 @@ class _DeviceFormScreenState extends ConsumerState<DeviceFormScreen> {
   }
 }
 
-/// Marka: serbest metin + oneriler (Turkce normalize edilerek eslestirilir).
-class _BrandField extends StatelessWidget {
-  const _BrandField({required this.controller, required this.focusNode, required this.options});
-
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final List<String> options;
-
-  @override
-  Widget build(BuildContext context) {
-    return RawAutocomplete<String>(
-      textEditingController: controller,
-      focusNode: focusNode,
-      optionsBuilder: (value) {
-        final q = normalizeForSearch(value.text);
-        if (q.isEmpty) return options;
-        return options.where((o) => normalizeForSearch(o).contains(q) && o != value.text);
-      },
-      fieldViewBuilder: (context, controller, focusNode, onSubmitted) => TextFormField(
-        controller: controller,
-        focusNode: focusNode,
-        textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(labelText: S.brand),
-        validator: (v) => (v == null || v.trim().isEmpty) ? S.requiredField : null,
-        onFieldSubmitted: (_) => onSubmitted(),
-      ),
-      optionsViewBuilder: (context, onSelected, options) => Align(
-        alignment: Alignment.topLeft,
-        child: Material(
-          elevation: 4,
-          borderRadius: BorderRadius.circular(8),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 280, maxWidth: 360),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              children: [
-                for (final o in options) ListTile(title: Text(o), onTap: () => onSelected(o)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

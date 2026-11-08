@@ -177,6 +177,65 @@ class ServicesDao extends DatabaseAccessor<AppDatabase> with _$ServicesDaoMixin 
         return id;
       });
 
+  /// Servisi gunceller; parcalar yenileriyle degistirilir (eskiler soft delete).
+  /// Odemeler burada degismez (detay ekraninda yonetilir).
+  Future<void> updateService(String id, ServiceInput input) => transaction(() async {
+        final now = DateTime.now();
+        await (update(serviceRecords)..where((t) => t.id.equals(id))).write(ServiceRecordsCompanion(
+          deviceId: Value(input.deviceId),
+          date: Value(input.date),
+          type: Value(input.type),
+          isPeriodicMaintenance: Value(input.isPeriodicMaintenance),
+          complaint: Value(_clean(input.complaint)),
+          errorCode: Value(_clean(input.errorCode)),
+          workNotes: Value(_clean(input.workNotes)),
+          checklistItems: Value(input.checklistItems),
+          waterPressureBar: Value(input.waterPressureBar),
+          expansionTankBar: Value(input.expansionTankBar),
+          flueCoPpm: Value(input.flueCoPpm),
+          laborFee: Value(input.laborFee),
+          totalAmount: Value(input.totalAmount),
+          updatedAt: Value(now),
+        ));
+        await (update(serviceParts)..where((t) => t.serviceId.equals(id) & t.deletedAt.isNull()))
+            .write(ServicePartsCompanion(deletedAt: Value(now), updatedAt: Value(now)));
+        if (input.parts.isNotEmpty) {
+          await batch((b) => b.insertAll(serviceParts, [
+                for (final p in input.parts)
+                  ServicePartsCompanion.insert(
+                    serviceId: id,
+                    name: p.name.trim(),
+                    quantity: Value(p.quantity),
+                    unitPrice: Value(p.unitPrice),
+                  ),
+              ]));
+        }
+        if (input.nextMaintenanceDate.present) {
+          await (update(devices)..where((t) => t.id.equals(input.deviceId))).write(
+            DevicesCompanion(nextMaintenanceDate: input.nextMaintenanceDate, updatedAt: Value(now)),
+          );
+        }
+      });
+
+  Future<ServiceRecord?> getService(String id) =>
+      (select(serviceRecords)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
+
+  Future<List<ServicePart>> getParts(String serviceId) => (select(serviceParts)
+        ..where((t) => t.serviceId.equals(serviceId) & t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+      .get();
+
+  /// Kombinin en son periyodik bakim tarihi ([excludeId] haric). Silme/duzenleme sonrasi
+  /// sonraki bakim tarihini onermek icin (PLAN 6.1).
+  Future<DateTime?> latestPeriodicServiceDate(String deviceId, {String? excludeId}) async {
+    final q = select(serviceRecords)
+      ..where((t) => t.deviceId.equals(deviceId) & t.deletedAt.isNull() & t.isPeriodicMaintenance.equals(true))
+      ..orderBy([(t) => OrderingTerm.desc(t.date)])
+      ..limit(1);
+    if (excludeId != null) q.where((t) => t.id.equals(excludeId).not());
+    return (await q.getSingleOrNull())?.date;
+  }
+
   Stream<ServiceRecord?> watchService(String id) =>
       (select(serviceRecords)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).watchSingleOrNull();
 

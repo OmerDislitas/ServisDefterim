@@ -9,17 +9,20 @@ part 'checklist_dao.g.dart';
 class ChecklistDao extends DatabaseAccessor<AppDatabase> with _$ChecklistDaoMixin {
   ChecklistDao(super.attachedDatabase);
 
-  Stream<List<ChecklistTemplate>> watchItems({bool includeInactive = true}) {
+  SimpleSelectStatement<$ChecklistTemplatesTable, ChecklistTemplate> _items({bool includeInactive = true}) {
     final q = select(checklistTemplates)
       ..where((t) => t.deletedAt.isNull())
       ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]);
     if (!includeInactive) q.where((t) => t.isActive.equals(true));
-    return q.watch();
+    return q;
   }
+
+  Stream<List<ChecklistTemplate>> watchItems({bool includeInactive = true}) =>
+      _items(includeInactive: includeInactive).watch();
 
   /// Servis formunda gosterilecek aktif maddeler.
   Future<List<String>> activeLabels() async =>
-      (await watchItems(includeInactive: false).first).map((e) => e.label).toList();
+      (await _items(includeInactive: false).get()).map((e) => e.label).toList();
 
   Future<String> addItem(String label) async {
     final max = checklistTemplates.sortOrder.max();

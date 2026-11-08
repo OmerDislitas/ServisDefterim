@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:servis_defterim/app.dart';
 import 'package:servis_defterim/core/db/database.dart';
 import 'package:servis_defterim/core/db/db_providers.dart';
+import 'package:servis_defterim/core/router/app_router.dart';
 
 import 'db/test_db.dart';
 
@@ -19,6 +20,17 @@ void testAppWidgets(String description, Future<void> Function(WidgetTester teste
       await tester.pump(Duration.zero);
     }
   });
+}
+
+/// Drift `watch()` akisinin ilk degeri. Widget testinin sahte saatinde `.first`
+/// gecikebildigi icin gercek zamanli calistirilir.
+Future<T> firstOf<T>(WidgetTester tester, Stream<T> stream) async => (await tester.runAsync(() => stream.first)) as T;
+
+/// Uygulama icinde bir rotaya gider (UI uzerinden gezinmeden).
+Future<void> pushRoute(WidgetTester tester, String location) async {
+  final container = ProviderScope.containerOf(tester.element(find.byType(App)));
+  container.read(routerProvider).push(location);
+  await tester.pumpAndSettle();
 }
 
 /// Uygulamayi bellek ici veritabaniyla baslatir. [seed] ile once veri eklenebilir.

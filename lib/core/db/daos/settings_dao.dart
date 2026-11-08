@@ -16,6 +16,9 @@ abstract final class SettingKeys {
   static const lastBackupAt = 'lastBackupAt';
   static const lastLocalChangeAt = 'lastLocalChangeAt';
 
+  /// Yarim kalan yeni servis formu (JSON). Bkz. ServiceDraft.
+  static const serviceDraft = 'serviceDraft';
+
   /// Veritabani ilk olusturulurken yazilan degerler.
   static const defaults = {
     defaultIntervalMonths: '12',

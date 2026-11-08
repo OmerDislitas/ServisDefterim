@@ -221,10 +221,13 @@ ORDER BY $orderBy
         updatedAt: Value(DateTime.now()),
       ));
 
-  Stream<List<Address>> watchAddresses(String customerId) => (select(addresses)
-        ..where((t) => t.customerId.equals(customerId) & t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.asc(t.createdAt), (t) => OrderingTerm.asc(t.id)]))
-      .watch();
+  SimpleSelectStatement<$AddressesTable, Address> _addressesOf(String customerId) => select(addresses)
+    ..where((t) => t.customerId.equals(customerId) & t.deletedAt.isNull())
+    ..orderBy([(t) => OrderingTerm.asc(t.createdAt), (t) => OrderingTerm.asc(t.id)]);
+
+  Stream<List<Address>> watchAddresses(String customerId) => _addressesOf(customerId).watch();
+
+  Future<List<Address>> getAddresses(String customerId) => _addressesOf(customerId).get();
 
   Stream<Address?> watchAddress(String id) =>
       (select(addresses)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).watchSingleOrNull();
