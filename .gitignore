@@ -53,3 +53,6 @@ key.properties
 *.jks
 *.keystore
 client_secret*.json
+
+# Projeye ait olmayan yerel klasorler
+/servis-defterim-site/
