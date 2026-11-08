@@ -300,6 +300,14 @@ abstract final class S {
   static const driveFailed = 'Drive işlemi başarısız oldu. Daha sonra tekrar deneyin.';
   static const goToSettings = 'Ayarlar';
   static const about = 'Hakkında';
+  static const settingsAppearance = 'Görünüm';
+  static const darkMode = 'Karanlık mod';
+  static const darkModeHint = 'Kapalıyken aydınlık tema kullanılır';
+  static const developer = 'Geliştirici';
+  static const developerName = 'Ömer Faruk Dişlitaş';
+  static const linkedin = 'LinkedIn';
+  static const github = 'GitHub';
+  static const linkFailed = 'Bağlantı açılamadı';
   static String appVersion(String v) => 'Uygulama sürümü: $v';
   static String schemaVersion(int v) => 'Veritabanı şema sürümü: $v';
 
@@ -320,7 +328,7 @@ abstract final class S {
   static const editChecklistItem = 'Maddeyi düzenle';
   static const checklistItemLabel = 'Madde';
   static const checklistInactiveHint = 'Kapalı maddeler servis formunda görünmez';
-  static const otherSettingsLater = 'Yedekleme ve bildirim ayarları sonraki aşamalarda eklenecek.';
+  static const otherSettingsLater = 'Bildirim ayarları sonraki aşamada eklenecek.';
   static const settingsMessages = 'Mesajlar';
 
   // Bos durumlar

@@ -21,6 +21,11 @@ void _snack(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
+/// Web baglantisini tarayicida (ya da ilgili uygulamada) acar.
+Future<void> openLink(BuildContext context, Uri uri) async {
+  if (!await _launch(uri) && context.mounted) _snack(context, S.linkFailed);
+}
+
 /// Telefon uygulamasini numarayla acar.
 Future<void> callPhone(BuildContext context, String phone) async {
   if (!await _launch(telUri(phone)) && context.mounted) _snack(context, S.callFailed);

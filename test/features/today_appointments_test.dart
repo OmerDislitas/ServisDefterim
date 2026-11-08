@@ -69,6 +69,28 @@ void main() {
     expect(find.text(S.driveConnect), findsNothing);
   });
 
+  testAppWidgets('Ayarlar: karanlık mod anahtarı temayı değiştirir, geliştirici bilgisi görünür', (tester) async {
+    final db = await pumpApp(tester);
+    await pushRoute(tester, Routes.settings);
+    Brightness brightness() => Theme.of(tester.element(find.text(S.settings).first)).brightness;
+    expect(brightness(), Brightness.light);
+
+    await tester.scrollUntilVisible(find.text(S.darkMode), 300, scrollable: find.byType(Scrollable).first);
+    await tester.tap(find.widgetWithText(SwitchListTile, S.darkMode));
+    await tester.pumpAndSettle();
+    expect(await db.settingsDao.getValue(SettingKeys.themeMode), 'dark');
+    expect(brightness(), Brightness.dark);
+
+    await tester.tap(find.widgetWithText(SwitchListTile, S.darkMode));
+    await tester.pumpAndSettle();
+    expect(await db.settingsDao.getValue(SettingKeys.themeMode), 'light');
+    expect(brightness(), Brightness.light);
+
+    await tester.scrollUntilVisible(find.text('github.com/OmerDislitas'), 300, scrollable: find.byType(Scrollable).first);
+    expect(find.text(S.developerName), findsOneWidget);
+    expect(find.text(S.linkedin), findsOneWidget);
+  });
+
   testAppWidgets('Randevu oluşturulur, randevudan servis başlatılır ve randevu kapanır', (tester) async {
     late ({String customerId, String addressId, String deviceId}) ids;
     final db = await pumpApp(tester, seed: (db) async => ids = await createCustomerWithDevice(db));

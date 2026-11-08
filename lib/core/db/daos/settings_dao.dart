@@ -25,8 +25,11 @@ abstract final class SettingKeys {
   /// Son Drive hatasi (Bugun ekraninda gosterilir); basarili yedekte silinir.
   static const driveLastError = 'driveLastError';
 
+  /// Tema: 'dark' / 'light'; kayit yoksa telefonun temasi kullanilir.
+  static const themeMode = 'themeMode';
+
   /// Bu telefona ozel ayarlar: geri yuklemede yedektekiyle degistirilmez.
-  static const deviceLocal = [driveAutoBackup, driveAccountEmail, lastDriveBackupAt, driveLastError];
+  static const deviceLocal = [driveAutoBackup, driveAccountEmail, lastDriveBackupAt, driveLastError, themeMode];
 
   /// Veritabani ilk olusturulurken yazilan degerler.
   static const defaults = {

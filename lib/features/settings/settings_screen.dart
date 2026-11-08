@@ -10,6 +10,7 @@ import '../../core/db/sample_data.dart';
 import '../../core/router/app_router.dart';
 import '../../core/strings.dart';
 import '../../core/utils/dates.dart';
+import '../../shared/actions.dart';
 import '../../shared/widgets/section_header.dart';
 import 'backup_actions.dart';
 
@@ -113,6 +114,16 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text(S.whatsappTemplateHint),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(Routes.whatsappTemplateSettings),
+          ),
+          const SectionHeader(title: S.settingsAppearance),
+          SwitchListTile(
+            secondary: const Icon(Icons.dark_mode_outlined),
+            title: const Text(S.darkMode),
+            subtitle: const Text(S.darkModeHint),
+            // Kayit yoksa telefonun temasi gecerli; anahtar o anki gorunumu gosterir
+            value: Theme.of(context).brightness == Brightness.dark,
+            onChanged: (v) =>
+                ref.read(databaseProvider).settingsDao.setValue(SettingKeys.themeMode, v ? 'dark' : 'light'),
           ),
           const Divider(),
           const ListTile(
@@ -226,6 +237,26 @@ class _About extends ConsumerWidget {
                   ),
               ],
             ),
+          ),
+          const SizedBox(height: 8),
+          const ListTile(
+            leading: Icon(Icons.person_outline),
+            title: Text(S.developerName),
+            subtitle: Text(S.developer),
+          ),
+          ListTile(
+            leading: const Icon(Icons.work_outline),
+            title: const Text(S.linkedin),
+            subtitle: const Text('linkedin.com/in/ömer-faruk-dişlitaş-585645256'),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () => openLink(context, Uri.https('www.linkedin.com', '/in/ömer-faruk-dişlitaş-585645256')),
+          ),
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text(S.github),
+            subtitle: const Text('github.com/OmerDislitas'),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () => openLink(context, Uri.https('github.com', '/OmerDislitas')),
           ),
         ],
       ),
