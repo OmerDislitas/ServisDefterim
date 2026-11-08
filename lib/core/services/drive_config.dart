@@ -4,7 +4,7 @@ abstract final class DriveConfig {
   /// google_sign_in v7 Android'de bunu `serverClientId` olarak ister.
   /// Bu bir gizli bilgi DEGILDIR (client secret degil); kodda durabilir.
   /// Bos ise Ayarlar'da "Drive yapilandirilmadi" gorunur.
-  static const serverClientId = '';
+  static const serverClientId = '624473750303-gdkjqejpq5gdjti62972gk8h2kh2u2v6.apps.googleusercontent.com';
 
   /// Kullanicinin Drive'inda yedeklerin tutuldugu klasor.
   static const folderName = 'Servis Defterim Yedekleri';

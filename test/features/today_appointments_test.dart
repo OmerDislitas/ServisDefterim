@@ -53,11 +53,20 @@ void main() {
     expect(find.text(S.goToSettings), findsOneWidget);
   });
 
-  testAppWidgets('Ayarlar: Drive yapılandırılmamışsa bilgi gösterilir', (tester) async {
+  testAppWidgets('Ayarlar: Drive bağlı değilse bağlan seçeneği gösterilir', (tester) async {
     await pumpApp(tester);
     await pushRoute(tester, Routes.settings);
-    expect(find.text(S.driveNotConfigured), findsOneWidget);
+    expect(find.text(S.driveNotConfigured), findsNothing);
+    expect(find.text(S.driveConnect), findsOneWidget);
     expect(find.text(S.exportBackup), findsOneWidget);
+  });
+
+  testAppWidgets('Ayarlar: Drive bağlıysa hesap ve yedek seçenekleri gösterilir', (tester) async {
+    await pumpApp(tester, seed: (db) => db.settingsDao.setValue(SettingKeys.driveAccountEmail, 'usta@gmail.com'));
+    await pushRoute(tester, Routes.settings);
+    expect(find.text(S.driveConnectedAs('usta@gmail.com')), findsOneWidget);
+    expect(find.text(S.driveBackupNow), findsOneWidget);
+    expect(find.text(S.driveConnect), findsNothing);
   });
 
   testAppWidgets('Randevu oluşturulur, randevudan servis başlatılır ve randevu kapanır', (tester) async {

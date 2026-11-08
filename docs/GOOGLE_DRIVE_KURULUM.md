@@ -53,7 +53,7 @@ keytool -list -v -keystore %USERPROFILE%\.android\debug.keystore -alias androidd
    > Client ID gizli bilgi değildir. **Client secret'a ihtiyaç yok, kimseyle paylaşmayın.**
 
 9. Client ID'yi `lib/core/services/drive_config.dart` içindeki `serverClientId`
-   alanına yazın ve yeni APK derleyin.
+   alanına yazın ve yeni APK derleyin. (Yapıldı: sürüm 1.0.1+2.)
 
 ## Sorun giderme
 
