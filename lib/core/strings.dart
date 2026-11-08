@@ -11,7 +11,6 @@ abstract final class S {
   // Ortak
   static const newService = 'Yeni Servis';
   static const settings = 'Ayarlar';
-  static const comingSoon = 'Bu bölüm yakında eklenecek.';
   static const cancel = 'Vazgeç';
   static const delete = 'Sil';
   static const edit = 'Düzenle';
@@ -182,6 +181,69 @@ abstract final class S {
   static const stayHere = 'Vazgeç';
   static const appointmentLinked = 'Randevudan başlatıldı';
 
+  // Bugun
+  static const backupNone = 'Henüz yedek alınmadı';
+  static String backupOld(int days) => 'Son yedek $days gün önce';
+  static const backupNowHint = 'Verilerinizi kaybetmemek için yedek alın.';
+  static const backupNow = 'Şimdi yedekle';
+  static String backupLast(String when) => 'Son yedek: $when';
+  static const todayAppointments = 'Bugünkü randevular';
+  static const noAppointmentsToday = 'Bugün randevu yok';
+  static const overdueMaintenance = 'Gecikmiş bakımlar';
+  static const thisWeekMaintenance = 'Bu hafta bakımı gelenler';
+  static const recentServices = 'Son servisler';
+  static const seeAll = 'Tümünü gör';
+  static String moreItems(int n) => '+$n daha';
+  static const nothingDue = 'Bu hafta bakımı gelen kombi yok';
+
+  // Bakimi gelenler
+  static const dueMaintenance = 'Bakımı Gelenler';
+  static const filterOverdue = 'Gecikmiş';
+  static const filterThisWeek = 'Bu hafta';
+  static const filterThisMonth = 'Bu ay';
+  static const filterNextMonth = 'Gelecek ay';
+  static const filterUnknown = 'Tarihi bilinmeyen';
+  static const noDueDevices = 'Bu filtrede kombi yok';
+  static const remindWhatsapp = 'WhatsApp hatırlat';
+  static const createAppointment = 'Randevu oluştur';
+  static String remindedAgo(String when) => '$when hatırlatıldı';
+
+  // Randevular
+  static const appointment = 'Randevu';
+  static const newAppointment = 'Yeni randevu';
+  static const editAppointment = 'Randevuyu düzenle';
+  static const appointmentDate = 'Tarih';
+  static const appointmentTime = 'Saat';
+  static const deviceOptional = 'Kombi (isteğe bağlı)';
+  static const noDeviceSelected = 'Belirtilmedi';
+  static const startServiceFromAppointment = 'Servisi başlat';
+  static const cancelAppointment = 'Randevuyu iptal et';
+  static const replanAppointment = 'Tekrar planla';
+  static const openServiceRecord = 'Servis kaydını aç';
+  static const appointmentCancelled = 'Randevu iptal edildi';
+  static const appointmentDeleted = 'Randevu silindi';
+  static const deleteAppointmentTitle = 'Randevu silinsin mi?';
+  static const deleteAppointmentBody = 'Bu randevu silinecek.';
+  static const addAppointmentForDay = 'Bu güne randevu ekle';
+
+  // Takvim
+  static const formatMonth = 'Ay';
+  static const formatWeek = 'Hafta';
+  static const legendMaintenance = 'Bakım';
+  static const legendOverdue = 'Gecikmiş';
+  static const legendAppointment = 'Randevu';
+  static const legendService = 'Servis';
+  static const dayEmpty = 'Bu günde kayıt yok';
+  static const maintenanceDue = 'Bakımı gelenler';
+  static const servicesDone = 'Yapılan servisler';
+
+  // WhatsApp sablonu
+  static const whatsappTemplate = 'WhatsApp mesaj şablonu';
+  static const whatsappTemplateHint = 'Bakım hatırlatmasında gönderilecek mesaj';
+  static const whatsappTemplateVars = 'Değişkenler: {ad} müşteri adı, {marka} kombi markası, {tarih} bakım tarihi';
+  static const resetToDefault = 'Varsayılana dön';
+  static const preview = 'Önizleme';
+
   // Ayarlar
   static const settingsMaintenance = 'Bakım';
   static const defaultInterval = 'Varsayılan bakım periyodu';
@@ -192,15 +254,12 @@ abstract final class S {
   static const editChecklistItem = 'Maddeyi düzenle';
   static const checklistItemLabel = 'Madde';
   static const checklistInactiveHint = 'Kapalı maddeler servis formunda görünmez';
-  static const otherSettingsLater = 'Yedekleme, bildirim ve WhatsApp ayarları sonraki aşamalarda eklenecek.';
+  static const otherSettingsLater = 'Yedekleme ve bildirim ayarları sonraki aşamalarda eklenecek.';
+  static const settingsMessages = 'Mesajlar';
 
-  // Bos durumlar (gecici)
-  static const todayEmpty = 'Bugünkü randevular ve bakımı gelen kombiler burada görünecek.';
-  static const calendarEmpty = 'Bakım ve randevu takvimi burada görünecek.';
+  // Bos durumlar
   static const customersEmpty = 'Henüz müşteri yok, ilk servis kaydını oluştur.';
   static const receivablesEmpty = 'Henüz alacak yok.';
-  static const settingsEmpty = 'Yedekleme, bakım ve bildirim ayarları burada olacak.';
-  static const newServiceEmpty = 'Servis kayıt formu burada olacak.';
 
   // Goreli gunler
   static const today = 'bugün';

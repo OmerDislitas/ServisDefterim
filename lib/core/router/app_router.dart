@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/appointments/appointment_detail_screen.dart';
+import '../../features/appointments/appointment_form_screen.dart';
 import '../../features/calendar/calendar_screen.dart';
+import '../../features/due_maintenance/due_maintenance_screen.dart';
+import '../../features/settings/whatsapp_template_screen.dart';
+import '../utils/dates.dart';
+import '../utils/maintenance.dart';
 import '../../features/customers/address_form_screen.dart';
 import '../../features/customers/customer_detail_screen.dart';
 import '../../features/customers/customer_form_screen.dart';
@@ -43,6 +49,15 @@ abstract final class Routes {
   static String service(String id) => '/service/$id';
   static String serviceEdit(String id) => '/service/$id/edit';
   static const checklistSettings = '/settings/checklist';
+  static const whatsappTemplateSettings = '/settings/whatsapp';
+  static String dueMaintenance([DueFilter filter = DueFilter.overdue]) => '/due?filter=${filter.name}';
+  static String appointmentNew({String? customerId, String? deviceId, DateTime? date}) {
+    final q = {'customerId': ?customerId, 'deviceId': ?deviceId, if (date != null) 'date': toDateKey(date)};
+    return q.isEmpty ? '/appointment/new' : Uri(path: '/appointment/new', queryParameters: q).toString();
+  }
+
+  static String appointment(String id) => '/appointment/$id';
+  static String appointmentEdit(String id) => '/appointment/$id/edit';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -72,7 +87,37 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.settings,
         builder: (_, _) => const SettingsScreen(),
-        routes: [GoRoute(path: 'checklist', builder: (_, _) => const ChecklistSettingsScreen())],
+        routes: [
+          GoRoute(path: 'checklist', builder: (_, _) => const ChecklistSettingsScreen()),
+          GoRoute(path: 'whatsapp', builder: (_, _) => const WhatsappTemplateScreen()),
+        ],
+      ),
+      GoRoute(
+        path: '/due',
+        builder: (_, state) => DueMaintenanceScreen(
+          initialFilter: DueFilter.values.asNameMap()[state.uri.queryParameters['filter']] ?? DueFilter.overdue,
+        ),
+      ),
+      GoRoute(
+        path: '/appointment/new',
+        builder: (_, state) {
+          final q = state.uri.queryParameters;
+          return AppointmentFormScreen(
+            customerId: q['customerId'],
+            deviceId: q['deviceId'],
+            date: q['date'] == null ? null : parseDateKey(q['date']!),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/appointment/:id',
+        builder: (_, state) => AppointmentDetailScreen(appointmentId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (_, state) => AppointmentFormScreen(appointmentId: state.pathParameters['id']!),
+          ),
+        ],
       ),
       GoRoute(
         path: Routes.newService,

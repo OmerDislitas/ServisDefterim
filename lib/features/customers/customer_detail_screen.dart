@@ -62,6 +62,11 @@ class _CustomerDetail extends ConsumerWidget {
         title: Text(customer.name),
         actions: [
           IconButton(
+            tooltip: S.createAppointment,
+            icon: const Icon(Icons.event_outlined),
+            onPressed: () => context.push(Routes.appointmentNew(customerId: customer.id)),
+          ),
+          IconButton(
             tooltip: S.edit,
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => context.push(Routes.customerEdit(customer.id)),

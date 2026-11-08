@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:servis_defterim/app.dart';
 import 'package:servis_defterim/core/db/database.dart';
 import 'package:servis_defterim/core/db/db_providers.dart';
@@ -35,6 +36,7 @@ Future<void> pushRoute(WidgetTester tester, String location) async {
 
 /// Uygulamayi bellek ici veritabaniyla baslatir. [seed] ile once veri eklenebilir.
 Future<AppDatabase> pumpApp(WidgetTester tester, {Future<void> Function(AppDatabase db)? seed}) async {
+  await initializeDateFormatting('tr_TR');
   final db = createTestDb();
   addTearDown(db.close);
   if (seed != null) await seed(db);

@@ -236,6 +236,12 @@ class ServicesDao extends DatabaseAccessor<AppDatabase> with _$ServicesDaoMixin 
     return (await q.getSingleOrNull())?.date;
   }
 
+  /// Randevudan baslatilan servis (varsa).
+  Stream<ServiceRecord?> watchServiceForAppointment(String appointmentId) => (select(serviceRecords)
+        ..where((t) => t.appointmentId.equals(appointmentId) & t.deletedAt.isNull())
+        ..limit(1))
+      .watchSingleOrNull();
+
   Stream<ServiceRecord?> watchService(String id) =>
       (select(serviceRecords)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).watchSingleOrNull();
 

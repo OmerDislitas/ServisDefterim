@@ -13,7 +13,8 @@ void main() {
       expect(find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
           findsOneWidget);
     }
-    expect(find.text(S.todayEmpty), findsOneWidget);
+    expect(find.text(S.todayAppointments), findsOneWidget);
+    expect(find.text(S.backupNone), findsOneWidget);
     expect(find.text(S.newService), findsOneWidget);
   });
 

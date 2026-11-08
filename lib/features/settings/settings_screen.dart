@@ -74,6 +74,14 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(Routes.checklistSettings),
           ),
+          const SectionHeader(title: S.settingsMessages),
+          ListTile(
+            leading: const Icon(Icons.chat_outlined),
+            title: const Text(S.whatsappTemplate),
+            subtitle: const Text(S.whatsappTemplateHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(Routes.whatsappTemplateSettings),
+          ),
           const Divider(),
           const ListTile(
             leading: Icon(Icons.info_outline),

@@ -118,13 +118,19 @@ class DevicesDao extends DatabaseAccessor<AppDatabase> with _$DevicesDaoMixin {
   /// Bakimi Gelenler (PLAN 7.1). Tarih araligi iki uc dahil.
   Stream<List<DueDeviceItem>> watchDueDevices(DueFilter filter, {DateTime? now}) {
     final range = dueRange(filter, now ?? DateTime.now());
+    return watchDueDevicesInRange(from: range.from, to: range.to, unknownOnly: filter == DueFilter.unknown);
+  }
+
+  /// Sonraki bakim tarihi [from, to] araligindaki kombiler ('yyyy-MM-dd', iki uc dahil).
+  Stream<List<DueDeviceItem>> watchDueDevicesInRange({String? from, String? to, bool unknownOnly = false}) {
+    final range = (from: from, to: to);
     final q = select(devices).join([
       innerJoin(addresses, addresses.id.equalsExp(devices.addressId)),
       innerJoin(customers, customers.id.equalsExp(addresses.customerId)),
     ])
       ..where(devices.deletedAt.isNull() & addresses.deletedAt.isNull() & customers.deletedAt.isNull());
 
-    if (filter == DueFilter.unknown) {
+    if (unknownOnly) {
       q.where(devices.nextMaintenanceDate.isNull());
       q.orderBy([OrderingTerm.asc(customers.searchText)]);
     } else {
