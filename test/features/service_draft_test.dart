@@ -12,7 +12,6 @@ void main() {
       complaint: 'Sıcak su yok',
       checklist: const ['Gaz kaçak kontrolü'],
       parts: const [PartDraft(name: 'Pompa', quantity: '2', unitPrice: '150')],
-      laborFee: '500',
       total: '800',
       payment: '800',
       paymentMode: PaymentMode.full,
@@ -24,7 +23,7 @@ void main() {
     expect(back.parts.single.name, 'Pompa');
   });
 
-  test('otomatik toplam = parçalar + işçilik (kuruş)', () {
+  test('otomatik ücret = parça toplamı (kuruş)', () {
     final d = ServiceDraft(
       date: DateTime(2026),
       parts: const [
@@ -32,10 +31,9 @@ void main() {
         PartDraft(name: 'Conta', unitPrice: '12,50'),
         PartDraft(name: 'Boş fiyat'),
       ],
-      laborFee: '500',
     );
     expect(d.partsTotal, 31250);
-    expect(d.autoTotal, 81250);
+    expect(d.autoTotal, 31250);
   });
 
   test('bozuk taslak null döner', () {

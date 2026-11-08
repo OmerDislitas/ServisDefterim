@@ -265,8 +265,8 @@ class _ServiceDetail extends ConsumerWidget {
             ),
           ],
 
-          // Parcalar ve iscilik
-          if (parts.isNotEmpty || service.laborFee > 0) ...[
+          // Parcalar
+          if (parts.isNotEmpty) ...[
             const SectionHeader(title: S.parts),
             for (final p in parts)
               ListTile(
@@ -275,11 +275,6 @@ class _ServiceDetail extends ConsumerWidget {
                 subtitle: Text('${p.quantity} × ${formatMoney(p.unitPrice)}'),
                 trailing: Text(formatMoney(p.quantity * p.unitPrice)),
               ),
-            ListTile(
-              dense: true,
-              title: const Text(S.laborFee),
-              trailing: Text(formatMoney(service.laborFee)),
-            ),
           ],
         ],
       ),

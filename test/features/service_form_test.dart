@@ -76,12 +76,14 @@ void main() {
     expect(field(S.complaint), findsOneWidget);
     await enter(tester, field(S.complaint), 'Sıcak su gelmiyor');
 
-    await enter(tester, field(S.laborFee), '500');
     await tapVisible(tester, find.text(S.addPart));
     await enter(tester, field(S.partName), 'Pompa');
     await enter(tester, field(S.quantity), '2');
     await enter(tester, field(S.unitPrice), '150');
-    expect(await fieldText(tester, S.total), '800');
+    // Ucret parca toplamindan otomatik gelir; usta isterse uzerine yazar
+    expect(await fieldText(tester, S.fee), '300');
+    await enter(tester, field(S.fee), '800');
+    expect(field('İşçilik'), findsNothing);
 
     await tapVisible(tester, find.widgetWithText(ChoiceChip, S.payFull));
     expect(await fieldText(tester, S.paymentReceived), '800');
@@ -113,7 +115,7 @@ void main() {
     await reveal(tester, find.text(formatDateLong(expectedNext)));
     expect(find.text(formatDateLong(expectedNext)), findsOneWidget);
 
-    await enter(tester, field(S.laborFee), '1000');
+    await enter(tester, field(S.fee), '1000');
     await tapVisible(tester, find.widgetWithText(ChoiceChip, S.payNone));
     await save(tester);
 
@@ -222,8 +224,8 @@ void main() {
 
     await tester.tap(find.byTooltip(S.edit));
     await tester.pumpAndSettle();
-    expect(await fieldText(tester, S.total), '500');
-    await enter(tester, field(S.total), '650');
+    expect(await fieldText(tester, S.fee), '500');
+    await enter(tester, field(S.fee), '650');
     await save(tester);
     expect(find.text('650,00 ₺'), findsWidgets);
 

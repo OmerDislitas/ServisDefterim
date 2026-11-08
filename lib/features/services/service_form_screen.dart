@@ -115,7 +115,6 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
 
   // Parcalar ve ucret
   final List<_PartRow> _parts = [];
-  final _labor = TextEditingController();
   final _total = TextEditingController();
   bool _totalManual = false;
   final _payment = TextEditingController();
@@ -130,7 +129,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
 
   List<TextEditingController> get _textControllers => [
         _ncName, _ncPhone, _naDistrict, _naNeighborhood, _naLine, _ndBrand, _ndModel, //
-        _complaint, _errorCode, _workNotes, _water, _expansion, _co, _labor, _total, _payment,
+        _complaint, _errorCode, _workNotes, _water, _expansion, _co, _total, _payment,
       ];
 
   @override
@@ -269,7 +268,6 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
         unitPrice: p.unitPrice == 0 ? '' : kurusToInput(p.unitPrice),
       )));
     }
-    _labor.text = s.laborFee == 0 ? '' : kurusToInput(s.laborFee);
     _total.text = kurusToInput(s.totalAmount);
     _totalManual = s.totalAmount != _currentDraft().autoTotal;
   }
@@ -306,7 +304,6 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
         flueCo: _co.text,
         checklist: _checked.toList(),
         parts: [for (final p in _parts) p.draft],
-        laborFee: _labor.text,
         total: _total.text,
         totalManual: _totalManual,
         payment: _payment.text,
@@ -350,7 +347,6 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
     for (final p in d.parts) {
       _parts.add(_PartRow(p));
     }
-    _labor.text = d.laborFee;
     _total.text = d.total;
     _totalManual = d.totalManual;
     _payment.text = d.payment;
@@ -539,7 +535,6 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
         waterPressureBar: _parseDouble(_water.text),
         expansionTankBar: _parseDouble(_expansion.text),
         flueCoPpm: int.tryParse(_co.text.trim()),
-        laborFee: parseMoney(_labor.text) ?? 0,
         totalAmount: _totalValue,
         appointmentId: _appointmentId,
         parts: [
@@ -1107,7 +1102,6 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
     final paid = parseMoney(_payment.text) ?? 0;
     return [
       const SectionHeader(title: S.feeAndPayment),
-      MoneyField(controller: _labor, label: S.laborFee, onChanged: (_) => _changed()),
       if (draft.partsTotal > 0)
         Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -1116,7 +1110,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> with Widg
       const SizedBox(height: 12),
       MoneyField(
         controller: _total,
-        label: S.total,
+        label: S.fee,
         onChanged: (_) {
           _totalManual = true;
           _changed();

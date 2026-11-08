@@ -195,7 +195,6 @@ class SampleDataGenerator {
         workNotes: Value(_r.nextInt(3) == 0 ? 'Kontroller yapıldı, sorun giderildi.' : null),
         checklistItems: Value(periodic ? checklist.where((_) => _r.nextInt(5) > 0).toList() : const []),
         waterPressureBar: Value(periodic ? 1.2 + _r.nextInt(6) / 10 : null),
-        laborFee: Value(labor),
         totalAmount: Value(total),
       ));
       for (final p in parts) {

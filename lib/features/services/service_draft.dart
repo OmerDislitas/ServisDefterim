@@ -54,7 +54,6 @@ class ServiceDraft {
     this.flueCo = '',
     this.checklist = const [],
     this.parts = const [],
-    this.laborFee = '',
     this.total = '',
     this.totalManual = false,
     this.payment = '',
@@ -89,7 +88,6 @@ class ServiceDraft {
   final String flueCo;
   final List<String> checklist;
   final List<PartDraft> parts;
-  final String laborFee;
   final String total;
   final bool totalManual;
   final String payment;
@@ -100,8 +98,8 @@ class ServiceDraft {
 
   int get partsTotal => parts.fold(0, (sum, p) => sum + p.lineTotal);
 
-  /// Parca toplami + iscilik (kurus).
-  int get autoTotal => partsTotal + (parseMoney(laborFee) ?? 0);
+  /// Otomatik ucret: parca toplami (kurus). Iscilik ayrica girilmez (PLAN'dan sapma, kullanici istegi).
+  int get autoTotal => partsTotal;
 
   Map<String, dynamic> toJson() => {
         'v': 1,
@@ -130,7 +128,6 @@ class ServiceDraft {
         'flueCo': flueCo,
         'checklist': checklist,
         'parts': [for (final p in parts) p.toJson()],
-        'laborFee': laborFee,
         'total': total,
         'totalManual': totalManual,
         'payment': payment,
@@ -169,7 +166,6 @@ class ServiceDraft {
       flueCo: s('flueCo'),
       checklist: (j['checklist'] as List? ?? const []).cast<String>(),
       parts: [for (final p in (j['parts'] as List? ?? const [])) PartDraft.fromJson(p as Map<String, dynamic>)],
-      laborFee: s('laborFee'),
       total: s('total'),
       totalManual: b('totalManual'),
       payment: s('payment'),

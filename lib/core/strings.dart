@@ -136,7 +136,7 @@ abstract final class S {
   static const unitPrice = 'Birim fiyat';
   static const removePart = 'Parçayı kaldır';
   static const feeAndPayment = 'Ücret ve ödeme';
-  static const laborFee = 'İşçilik';
+  static const fee = 'Ücret';
   static const partsTotal = 'Parça toplamı';
   static const total = 'Toplam';
   static const autoTotal = 'Otomatik hesapla';
